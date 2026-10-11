@@ -1,1 +1,6 @@
-
+{
+  "kullanicilar": [
+    { "ad": "Örnek Kullanıcı", "cihaz": "53e5364adf7662ff", "sifre": "1234", "bitis": "2026-12-31" },
+    { "ad": "Süresiz Üye",     "cihaz": "aaaa1111bbbb2222", "sifre": "pars",  "bitis": "" }
+  ]
+}
