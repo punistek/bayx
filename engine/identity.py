@@ -137,6 +137,41 @@ _FOREIGN_RE = re.compile(
     r"turkmenistan|madinah|makkah|thaqalayn|fashion ?one|lone star)\b", re.I)
 
 
+# Dünyada başka ülkelerde de aynı adla yayın yapan kanallar (Rus NTV, İtalyan TV8, Moğol TV5,
+# ABD Bloomberg/Fox/Star...). Bunlar ancak Türkiye işareti varsa Türk kanalı sayılır.
+AMBIGUOUS = {"ntv", "startv", "showtv", "now", "tv8", "tv4", "tv5", "a2", "tlc", "dmax", "cartoonnetwork",
+             "bloomberght", "tv24", "tv360", "cnbce", "powertv", "numberone", "spacetoon", "sportstv",
+             "flashtv", "birtv", "kanald", "kanal7", "atv"}
+# Türk yayıncı/CDN alan adları (adreste geçiyorsa güçlü Türkiye işareti)
+TR_HOSTS = (".com.tr", ".net.tr", ".org.tr", ".gov.tr", ".tv.tr", "daioncdn", "ercdn", "turknet",
+            "mediatriple", "trt.", "medyanet", "tmgrup", "ciner", "dogus", "demiroren", "turkmedya",
+            "artidijital", "tvkulesi", "canlitv", "puhutv", "tabii", "tivibu", "kablowebtv", "dsmart",
+            "ensonhaber", "haberturk", "sozcu", "halktv", "tele1", "tgrthaber", "showtv",
+            "kanald", "teve2", "trt.")
+_TVG_CC = re.compile(r"\.([a-z]{2})(?:@[\w-]+)?$", re.I)
+_TR_PATH = ("turk", "turkiye", "turkey", "/tr.", "/tr/", "_tr.", "-tr.", "/tr_", "/tur/", "trt",
+            "kanal", "ulusal", "yerel", "canli")
+
+
+def tvg_country(tvg_id):
+    m = _TVG_CC.search(tvg_id or "")
+    return m.group(1).lower() if m else ""
+
+
+def tr_evidence(ch):
+    """Bu kayıt Türkiye'ye ait mi? (tvg-id .tr, Türk alan adı, Türk kaynak yolu, TR grup adı)"""
+    if tvg_country(ch.tvg_id) == "tr":
+        return True
+    host = fold(ch.url.split("/")[2] if "//" in ch.url else ch.url)
+    if any(h in host for h in TR_HOSTS):
+        return True
+    src = fold(ch.source)
+    if any(t in src for t in _TR_PATH):
+        return True
+    grp = " " + re.sub(r"[^a-z]+", " ", fold(ch.group)) + " "
+    return any(f" {t} " in grp for t in ("tr", "turk", "turkiye", "turkey", "ulusal", "yerel", "yerli"))
+
+
 def key_of(name):
     """İsimden karşılaştırma anahtarı: 'TR: TRT-1 FHD' → 'trt1'."""
     k = fold(clean_name(name or ""))
@@ -192,14 +227,24 @@ class Registry:
         log.info("iptv-org ile zenginleştirilen kanal: %d", self.enriched)
 
     # ------------------------------------------------------------- ana işlev
-    def resolve(self, ch):
-        """Kanala kimlik ver. Döndürür: (cid, bilinen_mi)."""
-        for cand in (ch.raw_name, ch.name, ch.tvg_id.split(".")[0] if ch.tvg_id else ""):
-            k = key_of(cand)
-            if k in self.by_key:
-                return self.by_key[k], True
+    def resolve(self, ch, source_is_tr=False):
+        """Kanala kimlik ver. Döndürür: (cid, bilinen_mi).
+        Başka ülkenin tvg-id'si (NTV.ru, TV8.it) olan kayıt asla Türk kanalına eşlenmez.
+        Çok anlamlı adlar (NTV, Star, TV8...) yalnızca Türkiye işareti varsa eşlenir."""
         k = key_of(ch.name)
-        return ("x-" + k) if k else "", False
+        fallback = (("x-" + k) if k else "", False)
+        cc = tvg_country(ch.tvg_id)
+        if cc and cc != "tr" and not ch.armored:
+            return fallback
+        for cand in (ch.raw_name, ch.name, ch.tvg_id.split(".")[0] if ch.tvg_id else ""):
+            kk = key_of(cand)
+            if kk in self.by_key:
+                cid = self.by_key[kk]
+                if (cid in AMBIGUOUS and not ch.armored and not source_is_tr
+                        and not tr_evidence(ch)):
+                    return fallback
+                return cid, True
+        return fallback
 
     def is_known(self, cid):
         return cid in self.meta
@@ -208,6 +253,9 @@ class Registry:
         """Katalog dışı kanal Türkiye'yle ilgili mi? (yabancı çöpü ayıklar)"""
         if known or ch.armored:
             return True
+        cc = tvg_country(ch.tvg_id)
+        if cc and cc != "tr":
+            return False
         nm = ch.raw_name or ch.name
         if _FOREIGN_RE.search(nm):
             return False
@@ -219,8 +267,7 @@ class Registry:
         toks = set(re.split(r"[^a-z0-9]+", fold(nm)))
         if toks & _TR_TOKENS:
             return True
-        src = fold(ch.source)
-        return any(t in src for t in ("turk", "/tr.m3u", "/tr/", "_tr.", "-tr.", "turkey", "trt"))
+        return tr_evidence(ch)
 
 
 def load_registry(fetch_json=None):

@@ -141,12 +141,35 @@ def clean_name(name):
     return name or original.strip().upper()
 
 
-def assign_group(ch):
-    blob = fold(f"{ch.name} {ch.group}")
+_IL_RE = re.compile(r"\b(" + "|".join(C.IL_ADLARI) + r")\b")
+
+
+def _match_group(text):
+    """Serbest metni (kanal adı veya kaynaktaki grup adı) kategoriye çevir; yoksa None."""
+    t = " " + re.sub(r"[^a-z0-9]+", " ", fold(text)) + " "
     for gname, keys in C.GROUP_RULES:
-        if any(fold(k) in blob for k in keys):
-            return gname
-    return C.DEFAULT_GROUP
+        for k in keys:
+            if f" {k} " in t or (len(k) >= 5 and k in t):
+                return gname
+    if C.PLAKA_RE.search(t) or _IL_RE.search(t):
+        return C.G_YEREL
+    return None
+
+
+def normalize_group(src_group):
+    """Kaynaktaki grup adını ("ULUSAL ➤ DİNİ", "*TÜRK_SPOR", "TR-COCUK") kategorimize çevir."""
+    return _match_group(src_group) or C.DEFAULT_GROUP
+
+
+def assign_group(ch, catalog_group=None):
+    """Öncelik: zırhlı kanalın kendi (çevrilmiş) grubu → katalog → kanal adı → kaynak grubu."""
+    sg = getattr(ch, "src_group", None) or ch.group
+    src = _match_group(sg) if sg else None
+    if ch.armored and src:
+        return src
+    if catalog_group:
+        return catalog_group
+    return _match_group(ch.raw_name or ch.name) or src or C.DEFAULT_GROUP
 
 
 def tr_score(ch):

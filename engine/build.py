@@ -38,6 +38,8 @@ class RunStats:
     filtered: Counter = field(default_factory=Counter)
     candidates: int = 0
     from_memory: int = 0
+    tr_sources: int = 0
+    skipped_files: int = 0
     quarantined: int = 0
     tested: int = 0
     deep_tested: int = 0
@@ -70,14 +72,10 @@ def load_armor(reg):
     return block, chans
 
 
-def _apply_identity(reg, c):
-    cid, known = reg.resolve(c)
+def _apply_identity(reg, c, source_is_tr=False):
+    cid, known = reg.resolve(c, source_is_tr)
     c.cid = cid
-    if known:
-        m = reg.meta[cid]
-        c.group = m["group"]
-    else:
-        c.group = clean.assign_group(c)
+    c.group = clean.assign_group(c, reg.meta[cid]["group"] if known else None)
     return known
 
 
@@ -95,6 +93,7 @@ def gather(reg, opts, st, src_state, url_state, armor_urls):
     if opts.fetch_sources:
         items = sources.collect_all(search=opts.search, source_state=src_state)
         st.sources_total = len(items)
+        st.skipped_files = sources.SKIPPED["foreign"]
         with ThreadPoolExecutor(max_workers=C.THREADS_FETCH) as ex:
             for url, kind, chans in ex.map(fetch_source, items):
                 src_state.fetched(url, chans is not None, len(chans or []), kind)
@@ -111,13 +110,18 @@ def gather(reg, opts, st, src_state, url_state, armor_urls):
         c.raw_name = c.name
 
     refined = clean.refine(pool, st.filtered)
-    known_map = {id(c): _apply_identity(reg, c) for c in refined}
-    # Kaynak "Türk listesi" mi? (kanallarının ≥%25'i bilinen Türk kanalı)
+    # 1. tur (katı): çok anlamlı adlar Türkiye işareti olmadan eşlenmez
+    strict = {id(c): _apply_identity(reg, c) for c in refined}
+    # Kaynak "Türk listesi" mi? (kanallarının ≥%25'i kesin Türk kanalı)
     per_src = defaultdict(lambda: [0, 0])
     for c in refined:
         per_src[c.source][0] += 1
-        per_src[c.source][1] += known_map[id(c)]
+        per_src[c.source][1] += strict[id(c)]
     tr_src = {s for s, (n, k) in per_src.items() if n and k / n >= 0.25}
+    st.tr_sources = len(tr_src)
+    # 2. tur: Türk listelerindeki kayıtlar artık "NTV", "Star" gibi adlarla da eşlenebilir
+    known_map = {id(c): (_apply_identity(reg, c, True) if c.source in tr_src else strict[id(c)])
+                 for c in refined}
     out, seen = [], set(armor_urls)
     for c in refined:
         u = c.url.strip()

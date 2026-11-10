@@ -74,7 +74,10 @@ GEO_GRACE_HOURS     = 24      # GitHub'dan engelli ama başka bölgede son X saa
 
 MAX_SOURCES_PER_CHANNEL = 6   # channels.json'da kanal başına en fazla kaynak
 M3U_BACKUPS             = 1   # tr.m3u'da kanal başına en fazla kaç yedek kayıt
-MIN_PUBLISH_SCORE       = 35  # bundan düşük puanlı kaynak yayınlanmaz (zırhlılar hariç)
+MIN_PUBLISH_SCORE       = 35
+# zirhli.m3u tr.m3u'ya yazılırken grup adları kendi kategorilerimize çevrilsin mi?
+# (Ad, logo, adres, sıra AYNEN kalır; yalnızca "ULUSAL ➤ DİNİ" → "TR-DİNİ" gibi düzeltme.)
+ARMOR_NORMALIZE_GROUPS  = True  # bundan düşük puanlı kaynak yayınlanmaz (zırhlılar hariç)
 
 # ================================================================= güvenli yayın (koruma)
 GUARD_MIN_CHANNELS   = _env_int("GUARD_MIN_CHANNELS", 40)   # bundan az sağlam kanal → yayınlama
@@ -85,9 +88,11 @@ FORCE_PUBLISH        = _env_bool("FORCE_PUBLISH", False)
 # ================================================================= arama
 SEARCH_ENABLED = _env_bool("SEARCH_ENABLED", True)
 SEARCH_TERMS = [
-    "turkiye iptv", "turkce iptv", "turkiye m3u", "turk tv m3u",
-    "trt m3u", "turkiye canli tv", "turkish iptv playlist",
-    "iptv turkey", "turkiye kanallar m3u", "canli tv m3u8",
+    "turkiye iptv", "turkce iptv", "turkiye m3u", "turk tv m3u", "m3u turkiye",
+    "trt m3u", "turkiye canli tv", "turkish iptv playlist", "turkish tv m3u8",
+    "iptv turkey", "turkiye kanallar m3u", "canli tv m3u8", "tv kanal listesi",
+    "turkiye iptv m3u8", "ulusal kanallar m3u", "yerel kanallar m3u", "turk iptv",
+    "canli yayin m3u", "iptv tr", "kanal listesi m3u",
 ]
 TOPIC_SEARCH = ["topic:iptv turkey", "topic:iptv turkiye", "topic:m3u turkey"]
 # GitHub kod araması (token gerekir) — taze .m3u dosyaları
@@ -95,7 +100,16 @@ CODE_SEARCH_TERMS = ["trt1 extension:m3u", "trt1 extension:m3u8", "\"show tv\" e
                      "atv extension:m3u", "trt spor extension:m3u"]
 
 RECENT_DAYS   = 45
-MAX_REPOS     = _env_int("MAX_REPOS", 80)
+MAX_REPOS     = _env_int("MAX_REPOS", 150)
+MAX_FILES_PER_REPO = _env_int("MAX_FILES_PER_REPO", 40)   # büyük depolarda TR'ye en yakın N dosya
+
+# Otomatik bulunan dosyalarda yolu yabancı ülke/dil gösterenler indirilmez (ör. /eng/, us.m3u, countries/de.m3u)
+FOREIGN_PATH_CODES = set("""us usa uk gb de deu ger fr fra it ita es spa ru rus ua pl ro bg gr nl be pt por
+br ar mx in hin ind pk ir fas per iq sa ae eg ma dz tn cn chi zh jp jpn kr kor id my th vn ph ca au mn mon
+kz uz af bd lk np sy lb jo kw qa om ye ly sd so et ng gh ke za cl co pe ve ec bo py uy cr pa do cu
+hu cz sk si hr rs ba me mk al xk at ch dk se no fi is ie ee lv lt by md ge am il cy mt lu
+eng english arabic russian german french spanish italian portuguese hindi chinese korean japanese
+indonesia india usa_ latino latam""".split())
 GITHUB_TOKEN  = (os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or "").strip()
 
 # Kaynak karantinası: art arda X çalışmada hiç canlı kanal vermeyen otomatik kaynak bekletilir.
@@ -170,15 +184,49 @@ MULTISPACE_RE = _re.compile(r"\s+")
 KEEP_WHOLE = ["trt haber", "trt spor", "trt 1", "trt 2", "a haber", "a spor", "tv 8", "tv8.5"]
 
 # ================================================================= gruplama
-GROUP_RULES = [
-    ("TR-SPOR",   ["spor", "sport", "bein", "sports", "s sport", "smart", "tivibu spor"]),
-    ("TR-HABER",  ["haber", "news", "cnn", "ntv", "a haber", "halk", "sözcü", "tele1", "tgrt"]),
-    ("TR-ULUSAL", ["trt", "atv", "show", "fox", "now", "star", "kanal d", "kanal 7", "tv8",
-                   "beyaz", "teve2", "360", "tv4", "dmax", "euro"]),
-    ("TR-ÇOCUK",  ["çocuk", "cocuk", "kids", "minika", "cartoon", "disney", "nick", "trt çocuk"]),
-    ("TR-MÜZİK",  ["müzik", "muzik", "music", "number1", "powertürk", "kral", "dream türk"]),
-    ("TR-BELGESEL", ["belgesel", "documentary", "nat geo", "discovery", "dmax", "tlc", "history"]),
-]
+# Uygulamada görünen kategoriler YALNIZCA bunlar. Kaynaktaki "ULUSAL ➤ DİNİ", "*TÜRK_SPOR",
+# "TR-COCUK" gibi tüm grup adları bu listeye çevrilir.
+G_ULUSAL, G_HABER, G_SPOR = "TR-ULUSAL", "TR-HABER", "TR-SPOR"
+G_COCUK, G_BELGESEL, G_MUZIK = "TR-ÇOCUK", "TR-BELGESEL", "TR-MÜZİK"
+G_DINI, G_YEREL, G_SINEMA, G_DIZI = "TR-DİNİ", "TR-YEREL", "TR-SİNEMA", "TR-DİZİ"
 DEFAULT_GROUP = "TR-DİĞER"
-GROUP_ORDER = ["TR-ULUSAL", "TR-HABER", "TR-SPOR", "TR-ÇOCUK", "TR-BELGESEL", "TR-MÜZİK",
-               "TR-DİNİ", "TR-YEREL", DEFAULT_GROUP]
+GROUP_ORDER = [G_ULUSAL, G_HABER, G_SPOR, G_COCUK, G_BELGESEL, G_MUZIK, G_DINI,
+               G_SINEMA, G_DIZI, G_YEREL, DEFAULT_GROUP]
+
+# Anahtar kelime → kategori. SIRA ÖNEMLİ: ilk eşleşen kazanır (ör. "ULUSAL ➤ DİNİ" → DİNİ).
+# Kelimeler Türkçe karaktersiz ve küçük harfle yazılır.
+GROUP_RULES = [
+    (G_COCUK,    ["cocuk", "kids", "kid", "minika", "cartoon", "disney", "nick", "baby", "spacetoon",
+                  "eba", "trt genc", "cizgi", "pepee"]),
+    (G_DINI,     ["dini", "diyanet", "semerkand", "lalegul", "kuran", "quran", "islam", "mekke",
+                  "medine", "makkah", "madinah", "hilal", "rehber tv", "dost tv", "kanal 24 dini",
+                  "berat", "vav tv", "mesaj tv", "ilahi"]),
+    (G_SPOR,     ["spor", "sport", "bein", "s sport", "tjk", "tay tv", "fb tv", "gs tv", "bjk tv",
+                  "trabzonspor", "nba", "eurosport", "tivibu spor", "smart spor", "exxen spor", "derbi"]),
+    (G_HABER,    ["haber", "news", "cnn", "ntv", "halk tv", "sozcu", "tele1", "tgrt", "bloomberg",
+                  "ekonomi", "finans", "cnbc", "ekotur", "tv100", "tvnet", "ulke tv", "akit", "tbmm",
+                  "a para", "bengu"]),
+    (G_BELGESEL, ["belgesel", "documentary", "nat geo", "national geographic", "discovery", "dmax",
+                  "tlc", "history", "animal", "ciftci", "yaban", "av tv", "gezi", "viasat"]),
+    (G_MUZIK,    ["muzik", "music", "kral", "power", "number1", "number one", "dream turk", "nr1",
+                  "slow", "akustik", "taptaze", "damar", "arabesk", "turku", "pop tv", "rap"]),
+    (G_SINEMA,   ["sinema", "film", "movie", "cine", "yesilcam"]),
+    (G_DIZI,     ["dizi", "series"]),
+    (G_YEREL,    ["yerel", "kent", "belediye", "bolge", "karadeniz", "ege", "akdeniz", "guneydogu",
+                  "dogu", "anadolu", "postasi", "diyar", "hunat", "ruha", "sunrtv", "sun rtv", "kay tv",
+                  "kaytv", "mercan", "frt", "cem tv", "brt", "ktv", "tontv", "ton tv"]),
+    (G_ULUSAL,   ["ulusal", "national", "trt", "atv", "show", "fox", "star", "kanal d", "kanal 7",
+                  "tv8", "tv 8", "beyaz", "teve2", "360", "tv4", "a2", "now", "tabii", "tv 24"]),
+]
+
+# Türkiye il adları → TR-YEREL (ör. "ORDU TV", "KANAL 23 ELAZIĞ", "MALATYA VUSLAT")
+IL_ADLARI = """adana adiyaman afyon agri amasya ankara antalya artvin aydin balikesir bilecik bingol
+bitlis bolu burdur bursa canakkale cankiri corum denizli diyarbakir edirne elazig erzincan erzurum
+eskisehir gaziantep antep giresun gumushane hakkari hatay isparta mersin icel istanbul izmir kars
+kastamonu kayseri kirklareli kirsehir kocaeli konya kutahya malatya manisa kahramanmaras maras mardin
+mugla mus nevsehir nigde ordu rize sakarya samsun siirt sinop sivas tekirdag tokat trabzon tunceli
+sanliurfa urfa usak van yozgat zonguldak aksaray bayburt karaman kirikkale batman sirnak bartin
+ardahan igdir yalova karabuk kilis osmaniye duzce alanya bodrum marmaris fethiye iskenderun
+tarsus edessa erciyes""".split()
+# "Kanal 23", "TV 52", "TV41" gibi plaka numaralı kanallar → TR-YEREL
+PLAKA_RE = _re.compile(r"\b(?:kanal|tv)\s?(1\d|[2-7]\d|8[01])\b", _re.I)

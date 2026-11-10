@@ -19,7 +19,7 @@ ATTR_RE = re.compile(r'([\w-]+)="([^"]*)"')
 
 class Channel:
     __slots__ = ("name", "url", "logo", "group", "tvg_id", "extra", "headers",
-                 "source", "alive", "cid", "armored", "raw_name")
+                 "source", "alive", "cid", "armored", "raw_name", "src_group")
 
     def __init__(self, name, url, logo="", group="", tvg_id="", extra=None,
                  headers=None, source=""):
@@ -35,6 +35,7 @@ class Channel:
         self.cid = ""            # kanal kimliği (identity.py)
         self.armored = False     # zirhli.m3u'dan mı geldi
         self.raw_name = name     # kaynaktaki orijinal ad
+        self.src_group = self.group   # kaynaktaki orijinal grup adı
 
     def to_m3u(self, name=None, url=None, headers=None, extra_attrs=None):
         attrs = (f'tvg-id="{_q(self.tvg_id)}" tvg-name="{_q(name or self.name)}" '

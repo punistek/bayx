@@ -31,12 +31,19 @@ def _public_channel(ch):
 
 
 # ------------------------------------------------------------------ tr.m3u
-def build_m3u(channels, armor_block):
+def armor_entries(armor):
+    """Zırhlı kayıtlar: ad/logo/adres/başlık/sıra aynen, yalnızca grup adı düzeltilmiş."""
+    return [c.to_m3u(name=c.raw_name or c.name) for c in armor]
+
+
+def build_m3u(channels, armor_block, armor=None):
     head = "#EXTM3U"
     if C.EPG_URLS:
         head += f' x-tvg-url="{",".join(C.EPG_URLS)}"'
     parts = [head]
-    if armor_block:
+    if armor and C.ARMOR_NORMALIZE_GROUPS:
+        parts.extend(armor_entries(armor))
+    elif armor_block:
         parts.append(armor_block)
     lines, n = [], 0
     for ch in channels:
@@ -138,6 +145,8 @@ def build_report(channels, st, healthy, m3u_n, armor, reg):
          f"| Karantinada (bu tur atlandı) | {st.quarantined} |",
          f"| Kaynak listesi | {st.sources_ok}/{st.sources_total} indirildi |",
          f"| Aday (hafızadan geri çağrılan) | {st.candidates} ({st.from_memory}) |",
+         f"| Türk listesi sayılan kaynak | {st.tr_sources} |",
+         f"| Yabancı olduğu için indirilmeyen dosya | {st.skipped_files} |",
          f"| Elenen | {', '.join(f'{k}: {v}' for k, v in st.filtered.items()) or '-'} |",
          "",
          "## Zırhlı kanallar",
@@ -185,7 +194,7 @@ def _has_cred(url):
 
 # ------------------------------------------------------------------ yaz
 def write_all(channels, armor_block, armor, st, healthy, reg):
-    m3u, m3u_n = build_m3u(channels, armor_block)
+    m3u, m3u_n = build_m3u(channels, armor_block, armor)
     if st.publish:
         if os.path.exists(C.TR_FILE):
             shutil.copyfile(C.TR_FILE, C.TR_FILE + ".bak")

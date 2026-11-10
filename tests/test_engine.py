@@ -117,7 +117,43 @@ def test_identity(name, cid):
     reg = identity.Registry()
     c = Channel(name=clean.clean_name(name), url="http://x/y.m3u8")
     c.raw_name = name
-    assert reg.resolve(c)[0] == cid
+    assert reg.resolve(c, source_is_tr=True)[0] == cid      # Türk listesinden gelen kayıt
+
+
+@pytest.mark.parametrize("name,tvg,url,source,expect", [
+    ("NTV", "NTV.ru", "http://x/ntv.m3u8", "http://a/tr.m3u", None),           # Rus NTV
+    ("NTV", "", "http://x/ntv.m3u8", "http://a/playlists/mon/general.m3u", None),  # Moğol listesi
+    ("NTV", "", "https://ntv.daioncdn.net/ntv/ntv.m3u8", "http://a/list.m3u", "ntv"),  # Türk CDN
+    ("NTV", "NTV.tr", "http://x/ntv.m3u8", "http://a/list.m3u", "ntv"),         # .tr tvg-id
+    ("Bloomberg", "", "http://x/b.m3u8", "http://a/eng/business.m3u", None),
+    ("ATV", "", "http://x/a.m3u8", "http://a/turkiye/kanallar.m3u", "atv"),    # Türk kaynak yolu
+    ("TRT 1", "", "http://x/t.m3u8", "http://a/list.m3u", "trt1"),             # tek anlamlı ad
+    ("Kanal D", "KanalD.ro", "http://x/k.m3u8", "http://a/tr.m3u", None),      # Romanya Kanal D
+])
+def test_identity_foreign_safe(name, tvg, url, source, expect):
+    reg = identity.Registry()
+    c = Channel(name=clean.clean_name(name), url=url, tvg_id=tvg, source=source)
+    c.raw_name = name
+    cid, known = reg.resolve(c)
+    assert (cid if known else None) == expect
+
+
+@pytest.mark.parametrize("grp,expect", [
+    ("ULUSAL ? DİNİ", "TR-DİNİ"), ("*TÜRK_SPOR", "TR-SPOR"), ("TR-COCUK", "TR-ÇOCUK"),
+    ("TR-SINEMA", "TR-SİNEMA"), ("??BEİNSPORTS DERBİ ÖZEL??", "TR-SPOR"), ("ULUSAL ? HABER", "TR-HABER"),
+    ("TR-MUZIK", "TR-MÜZİK"), ("Yerel", "TR-YEREL"), ("TR-DIZI", "TR-DİZİ"), ("ULUSAL", "TR-ULUSAL"),
+])
+def test_group_normalize(grp, expect):
+    assert clean.normalize_group(grp) == expect
+
+
+@pytest.mark.parametrize("name,expect", [
+    ("KANAL 23 ELAZIG", "TR-YEREL"), ("TV52 ORDU", "TR-YEREL"), ("ERCIYES TV", "TR-YEREL"),
+    ("POWERTURK AKUSTIK", "TR-MÜZİK"), ("SEMERKAND TV", "TR-DİNİ"), ("TRT EBA LISE", "TR-ÇOCUK"),
+])
+def test_group_from_name(name, expect):
+    c = Channel(name=name, url="x")
+    assert clean.assign_group(c) == expect
 
 
 def test_foreign_filtered():
@@ -207,7 +243,9 @@ def test_end_to_end(server, tmp_path, monkeypatch):
     assert [c["id"] for c in data["channels"][:3]] == ["atv", "kanald", "halktv"]
     # tr.m3u: zırhlı blok birebir + otomatik bölüm
     m3u = (tmp_path / "tr.m3u").read_text(encoding="utf-8")
-    assert "#EXTINF:-1,ATVYEDEK1" in m3u and "KANALDYEDEK9" in m3u
+    assert ",ATVYEDEK1\n" in m3u and ",KANALDYEDEK9\n" in m3u          # zırhlı adlar aynen
+    assert 'group-title="TR-ULUSAL",ATVYEDEK1' in m3u                    # grup düzeltilmiş
+    assert m3u.index("ATVYEDEK1") < m3u.index("KANALDYEDEK9") < m3u.index("HALKTVYEDEK2")  # sıra aynen
     assert "Kanal D (Otomatik)" in m3u and "TRT 1 (Yedek 1)" in m3u
     assert "panel.example" not in m3u
     health = json.loads((tmp_path / "health.json").read_text(encoding="utf-8"))
