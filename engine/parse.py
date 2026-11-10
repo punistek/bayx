@@ -19,7 +19,7 @@ ATTR_RE = re.compile(r'([\w-]+)="([^"]*)"')
 
 class Channel:
     __slots__ = ("name", "url", "logo", "group", "tvg_id", "extra", "headers",
-                 "source", "alive")
+                 "source", "alive", "cid", "armored", "raw_name")
 
     def __init__(self, name, url, logo="", group="", tvg_id="", extra=None,
                  headers=None, source=""):
@@ -32,14 +32,22 @@ class Channel:
         self.headers = headers or {}    # User-Agent / Referer / Origin ...
         self.source = source
         self.alive = None
+        self.cid = ""            # kanal kimliği (identity.py)
+        self.armored = False     # zirhli.m3u'dan mı geldi
+        self.raw_name = name     # kaynaktaki orijinal ad
 
-    def to_m3u(self):
-        attrs = f'tvg-id="{self.tvg_id}" tvg-logo="{self.logo}" group-title="{self.group}"'
-        out = [f"#EXTINF:-1 {attrs},{self.name}"]
+    def to_m3u(self, name=None, url=None, headers=None, extra_attrs=None):
+        attrs = (f'tvg-id="{_q(self.tvg_id)}" tvg-name="{_q(name or self.name)}" '
+                 f'tvg-logo="{_q(self.logo)}" group-title="{_q(self.group)}"')
+        if extra_attrs:
+            for k, v in extra_attrs.items():
+                attrs += f' {k}="{_q(v)}"'
+        out = [f"#EXTINF:-1 {attrs},{name or self.name}"]
+        hdr = self.headers if headers is None else headers
         # Başlıkları temiz EXTVLCOPT olarak yaz (her oynatıcı okur)
-        ua = _get(self.headers, "user-agent")
-        ref = _get(self.headers, "referer") or _get(self.headers, "referrer")
-        org = _get(self.headers, "origin")
+        ua = _get(hdr, "user-agent")
+        ref = _get(hdr, "referer") or _get(hdr, "referrer")
+        org = _get(hdr, "origin")
         if ua:
             out.append(f"#EXTVLCOPT:http-user-agent={ua}")
         if ref:
@@ -49,8 +57,12 @@ class Channel:
         # Başlık dışındaki diğer özel satırlar (varsa) aynen
         for e in self.extra:
             out.append(e)
-        out.append(self.url)
+        out.append(url or self.url)
         return "\n".join(out)
+
+
+def _q(v):
+    return (v or "").replace('"', "'")
 
 
 def _get(d, key):
@@ -157,6 +169,14 @@ def parse(text, source=""):
                 headers=dict(headers), source=source))
             reset()
     return chans
+
+
+def header_attrs(text):
+    """#EXTM3U satırındaki x-tvg-url vb. öznitelikleri döndür."""
+    for raw in (text or "").splitlines()[:5]:
+        if raw.strip().lstrip("\ufeff").upper().startswith("#EXTM3U"):
+            return dict(ATTR_RE.findall(raw))
+    return {}
 
 
 def write_m3u(channels):

@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Kalite kapısı: saçma/yabancı/VOD kanalları eler, isimleri temizler, gruplar, sıralar."""
+"""Kalite kapısı: saçma/yabancı/VOD kanalları eler, isimleri temizler, gruplar, sıralar.
+Ayrıca kullanıcı adı/şifre taşıyan adresleri (Xtream panelleri vb.) tespit eder."""
 import re
 import unicodedata
+from urllib.parse import parse_qs, urlsplit
 
 from . import config as C
 
@@ -26,6 +28,39 @@ def is_banned(ch):
     if any(h in low for h in C.VOD_URL_HINTS):
         return True
     if C.VOD_NAME_RE.search(ch.name):
+        return True
+    return False
+
+
+_DIGITS_RE = re.compile(r"^\d+(\.(ts|m3u8|mp4|mkv))?$", re.I)
+
+
+def has_credentials(url):
+    """Adres bir hesaba ait kullanıcı adı/şifre taşıyor mu?
+    - http://user:pass@host/...
+    - ...?username=..&password=..   (get.php, player_api.php)
+    - Xtream: /live/USER/PASS/123.ts  ya da  /USER/PASS/123
+    """
+    try:
+        p = urlsplit(url.strip())
+    except ValueError:
+        return False
+    if p.username or p.password:
+        return True
+    if p.query:
+        keys = {k.lower() for k in parse_qs(p.query, keep_blank_values=True)}
+        if keys & C.CRED_QUERY_KEYS:
+            return True
+    path = p.path.lower()
+    if path.endswith(("/get.php", "/player_api.php", "/xmltv.php", "/panel_api.php")):
+        return True
+    segs = [s for s in p.path.split("/") if s]
+    if len(segs) == 4 and segs[0].lower() == "live" and _DIGITS_RE.match(segs[3]):
+        return True
+    if (len(segs) == 3 and _DIGITS_RE.match(segs[2])
+            and segs[0].lower() not in C.CRED_PATH_SKIP
+            and segs[1].lower() not in C.CRED_PATH_SKIP
+            and not _DIGITS_RE.match(segs[0])):
         return True
     return False
 
@@ -91,7 +126,9 @@ def clean_name(name):
             name = rx.sub(tag, name)
             placeholders[tag] = keep.upper()
 
+    name = C.PREFIX_RE.sub("", name)
     name = C.BRACKETS_RE.sub(" ", name)
+    name = C.YEDEK_GLUED_RE.sub(" ", name.strip())
     name = C.SITE_RE.sub(" ", name)
     name = C.STRIP_TAGS_RE.sub(" ", name)
     name = C.SYMBOL_RE.sub(" ", name)
@@ -132,13 +169,18 @@ def norm_name_key(name):
     return k
 
 
-def refine(channels):
+def refine(channels, stats=None):
     """Yasaklıları ele, isimleri temizle, grupla. (Henüz tekilleştirme/test yok.)"""
     out = []
+    stats = stats if stats is not None else {}
     for ch in channels:
         if not ch.url or not ch.url.lower().startswith(("http://", "https://")):
             continue
+        if has_credentials(ch.url):
+            stats["credential"] = stats.get("credential", 0) + 1
+            continue
         if is_banned(ch):
+            stats["banned"] = stats.get("banned", 0) + 1
             continue
         # İsim çöpse (SVG/data/URL) kanalı ATMA — çalışıyor olabilir, adını kurtar.
         if is_junk_name(ch.name):
@@ -150,20 +192,6 @@ def refine(channels):
                 or is_junk_name(ch.name)):
             continue
         ch.group = assign_group(ch)
-        out.append(ch)
-    return out
-
-
-def cap_by_name(channels, max_per=None):
-    """Aynı kanaldan en fazla N kopya tut (yedek için), gerisini at. Sırayı korur."""
-    max_per = max_per or C.MAX_COPY_PER_CHANNEL
-    counts, out = {}, []
-    for ch in channels:
-        k = norm_name_key(ch.name) + "|" + ch.group
-        n = counts.get(k, 0)
-        if n >= max_per:
-            continue
-        counts[k] = n + 1
         out.append(ch)
     return out
 

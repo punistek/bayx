@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PuuStream Kaynak Paneli</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --line:#262d36; --text:#e6e9ee; --muted:#8b95a3;
+    --ok:#3fb950; --warn:#d29922; --bad:#f85149; --geo:#58a6ff; --accent:#c39bff;
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){--bg:#f6f7f9;--panel:#fff;--line:#e3e6ea;--text:#1b1f24;--muted:#5d6670}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{padding:20px 16px 8px;max-width:1200px;margin:auto}
+  h1{margin:0;font-size:20px;letter-spacing:.2px}
+  .sub{color:var(--muted);font-size:13px;margin-top:4px}
+  main{max-width:1200px;margin:auto;padding:0 16px 40px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .kpi b{display:block;font-size:24px;font-variant-numeric:tabular-nums}
+  .kpi span{color:var(--muted);font-size:12px}
+  .banner{border-radius:10px;padding:10px 14px;margin:8px 0 4px;border:1px solid var(--line);background:var(--panel)}
+  .banner.stop{border-color:var(--bad)}
+  .bar{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:2}
+  input,select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;min-width:0}
+  input{flex:1 1 220px}
+  .list{display:grid;gap:8px}
+  details{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+  summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:12px 40px 1fr auto;gap:12px;align-items:center;padding:10px 14px}
+  summary::-webkit-details-marker{display:none}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .s-ok{background:var(--ok)} .s-unstable{background:var(--warn)} .s-dead,.s-blocked{background:var(--bad)} .s-geo{background:var(--geo)}
+  .logo{width:40px;height:28px;object-fit:contain;border-radius:4px;background:#0003}
+  .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .meta{color:var(--muted);font-size:12px}
+  .tag{font-size:11px;border:1px solid var(--line);border-radius:999px;padding:1px 8px;margin-left:6px;color:var(--muted)}
+  .tag.arm{color:var(--accent);border-color:var(--accent)}
+  .score{font-variant-numeric:tabular-nums;font-weight:700;text-align:right}
+  .srcs{padding:0 14px 12px;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{text-align:left;padding:6px 8px;border-top:1px solid var(--line);white-space:nowrap}
+  th{color:var(--muted);font-weight:500}
+  td.u{max-width:420px;overflow:hidden;text-overflow:ellipsis}
+  td.u a{color:inherit}
+  .empty{color:var(--muted);padding:30px;text-align:center}
+  @media (max-width:600px){ summary{grid-template-columns:10px 1fr auto} .logo{display:none} }
+</style>
+</head>
+<body>
+<header>
+  <h1>PuuStream Kaynak Paneli</h1>
+  <div class="sub" id="sub">Yükleniyor…</div>
+</header>
+<main>
+  <div id="banner"></div>
+  <div class="kpis" id="kpis"></div>
+  <div class="bar">
+    <input id="q" type="search" placeholder="Kanal ara…">
+    <select id="fs"><option value="">Tüm durumlar</option><option value="ok">Sağlam</option><option value="unstable">Kararsız</option><option value="geo">Bölge (TR)</option><option value="dead">Çalışmıyor</option></select>
+    <select id="fg"><option value="">Tüm gruplar</option></select>
+    <select id="fa"><option value="">Zırhlı + otomatik</option><option value="1">Yalnızca zırhlı</option><option value="0">Yalnızca otomatik</option></select>
+  </div>
+  <div class="list" id="list"></div>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const ST = {ok:"Sağlam", unstable:"Kararsız", geo:"Bölge (TR)", dead:"Çalışmıyor", blocked:"Engelli"};
+let DATA = null;
+
+function esc(s){return String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function host(u){try{return new URL(u).host}catch{return u}}
+function ago(iso){ if(!iso) return "-"; const m=Math.round((Date.now()-new Date(iso))/60000);
+  return m<60?`${m} dk önce`:m<1440?`${Math.round(m/60)} sa önce`:`${Math.round(m/1440)} gün önce`; }
+
+async function load(){
+  const [ch, hl] = await Promise.all([
+    fetch("channels.json",{cache:"no-store"}).then(r=>r.json()),
+    fetch("health.json",{cache:"no-store"}).then(r=>r.json()).catch(()=>null)
+  ]);
+  DATA = ch;
+  $("#sub").textContent = `Son yayın: ${ago(ch.generated_at)} · test bölgesi: ${ch.region}` + (hl ? ` · son test: ${ago(hl.generated_at)}` : "");
+  if (hl && !hl.published) $("#banner").innerHTML = `<div class="banner stop">🛡️ Son testte koruma devreye girdi, eski sağlam liste korunuyor: ${esc(hl.guard)}</div>`;
+  const t = hl?.totals || {}, a = hl?.armored || {};
+  const k = [
+    [ch.stats.healthy_channels, "Sağlam kanal"],
+    [ch.stats.channels, "Toplam kanal"],
+    [ch.stats.sources, "Kaynak adresi"],
+    [`${a.healthy ?? "-"}/${a.channels ?? "-"}`, "Zırhlı sağlam"],
+    [a.rescued_by_auto ?? "-", "Yedekle kurtarılan zırhlı"],
+    [t.tested_urls ?? "-", "Son turda test"],
+  ];
+  $("#kpis").innerHTML = k.map(([v,l])=>`<div class="kpi"><b>${esc(v)}</b><span>${l}</span></div>`).join("");
+  const groups = [...new Set(ch.channels.map(c=>c.group))];
+  $("#fg").innerHTML += groups.map(g=>`<option>${esc(g)}</option>`).join("");
+  render();
+}
+
+function render(){
+  const q = $("#q").value.trim().toLocaleLowerCase("tr"), fs=$("#fs").value, fg=$("#fg").value, fa=$("#fa").value;
+  const rows = DATA.channels.filter(c =>
+    (!q || c.name.toLocaleLowerCase("tr").includes(q) || c.id.includes(q)) &&
+    (!fs || c.status===fs || (fs==="dead" && !["ok","unstable","geo"].includes(c.status))) &&
+    (!fg || c.group===fg) && (!fa || String(+c.armored)===fa));
+  $("#list").innerHTML = rows.length ? rows.slice(0,600).map(card).join("") : `<div class="empty">Sonuç yok</div>`;
+}
+
+function card(c){
+  const okN = c.sources.filter(s=>["ok","unstable","geo"].includes(s.status)).length;
+  const logo = c.logo ? `<img class="logo" loading="lazy" src="${esc(c.logo)}" alt="" onerror="this.style.visibility='hidden'">` : `<span class="logo"></span>`;
+  return `<details><summary>
+    <span class="dot s-${esc(c.status)}" title="${ST[c.status]||c.status}"></span>${logo}
+    <div><div class="nm">${esc(c.name)}${c.armored?'<span class="tag arm">zırhlı</span>':''}</div>
+    <div class="meta">${esc(c.group)} · ${okN}/${c.sources.length} kaynak sağlam</div></div>
+    <div class="score">${c.score}</div></summary>
+    <div class="srcs"><table><tr><th>#</th><th>Durum</th><th>Puan</th><th>Çözünürlük</th><th>Açılış</th><th>Akış</th><th>Adres</th><th>Not</th></tr>
+    ${c.sources.map((s,i)=>`<tr><td>${i+1}</td><td><span class="dot s-${esc(s.status)}" style="display:inline-block"></span> ${ST[s.status]||esc(s.status)}</td>
+      <td>${s.score}</td><td>${s.height?s.height+"p":"-"}${s.vcodec?" "+esc(s.vcodec):""}</td><td>${s.latency_ms||"-"} ms</td>
+      <td>${s.progress===true?"ilerliyor":s.progress===false?"donuk":"-"}${s.audio===false?" · sessiz":""}</td>
+      <td class="u" title="${esc(s.url)}">${esc(host(s.url))}</td>
+      <td>${s.armored?"zırhlı ":""}${s.tls_insecure?"TLS bozuk ":""}${esc(s.reason||"")}</td></tr>`).join("")}
+    </table></div></details>`;
+}
+
+["#q","#fs","#fg","#fa"].forEach(s=>$(s).addEventListener("input",render));
+load().catch(e=>{$("#sub").textContent="channels.json okunamadı: "+e.message});
+</script>
+</body>
+</html>
