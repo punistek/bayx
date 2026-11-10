@@ -95,7 +95,7 @@ def build_health_json(channels, st, healthy):
             "channels": len(channels), "healthy_channels": healthy,
             "tested_urls": st.tested, "deep_tested": st.deep_tested,
             "status": dict(st.status), "candidates": st.candidates,
-            "quarantined": st.quarantined, "sources_ok": st.sources_ok,
+            "quarantined": st.quarantined, "site_candidates": st.from_sites, "sources_ok": st.sources_ok,
             "sources_total": st.sources_total,
         },
         "armored": {
@@ -144,6 +144,7 @@ def build_report(channels, st, healthy, m3u_n, armor, reg):
          f"🚫 {stat.get('blocked', 0)} engelli · ❌ {stat.get('dead', 0)} ölü |",
          f"| Karantinada (bu tur atlandı) | {st.quarantined} |",
          f"| Kaynak listesi | {st.sources_ok}/{st.sources_total} indirildi |",
+         f"| Site çözücüleri (7 spor kaynağı) | {st.from_sites} aday (sağlık testine tabi) |",
          f"| Aday (hafızadan geri çağrılan) | {st.candidates} ({st.from_memory}) |",
          f"| Türk listesi sayılan kaynak | {st.tr_sources} |",
          f"| Yabancı olduğu için indirilmeyen dosya | {st.skipped_files} |",

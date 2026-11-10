@@ -1,0 +1,124 @@
+{
+  "enabled": true,
+  "timeout_seconds": 7,
+  "providers": {
+    "selcuk": {
+      "enabled": true,
+      "base_url": "https://www.selcuksportshd.is/",
+      "domain_candidates": []
+    },
+    "atom": {
+      "enabled": true,
+      "base_url": "https://url24.link/AtomSporTV",
+      "domain_candidates": [
+        "https://www.atomsportv480.top"
+      ]
+    },
+    "andro": {
+      "enabled": true,
+      "base_url": "",
+      "domain_candidates": [],
+      "event_path": "/event.html?id=androstreamlivebs1",
+      "auto_domain_scan": true,
+      "domain_pattern": "https://mahsunsports{n}.xyz",
+      "index_start": 35,
+      "index_end": 99,
+      "scan_limit": 50
+    },
+    "xsport": {
+      "enabled": true,
+      "base_url": "",
+      "domain_candidates": [],
+      "auto_domain_scan": true,
+      "domain_pattern": "https://www.xsportv{n}.xyz/",
+      "index_start": 56,
+      "index_end": 999,
+      "scan_limit": 50
+    },
+    "palazzo": {
+      "enabled": true,
+      "base_url": "",
+      "domain_candidates": [],
+      "auto_domain_scan": true,
+      "domain_pattern": "https://palazzocanli{n}.com",
+      "index_start": 28,
+      "index_end": 200,
+      "scan_limit": 50
+    },
+    "zeus": {
+      "enabled": true,
+      "base_url": "",
+      "domain_candidates": [],
+      "auto_domain_scan": true,
+      "domain_pattern": "https://zeustv{n}.vip",
+      "index_start": 262,
+      "index_end": 500,
+      "scan_limit": 50
+    },
+    "trgoals": {
+      "enabled": true,
+      "streams": [
+        {
+          "name": "TRGoals Ana",
+          "url": "https://deathless.pantonum1.workers.dev/taraftarium.m3u8"
+        },
+        {
+          "name": "beIN Sports 1",
+          "url": "https://deathless.pantonum1.workers.dev/patron.m3u8"
+        },
+        {
+          "name": "beIN Sports 2",
+          "url": "https://deathless.pantonum1.workers.dev/b2.m3u8"
+        },
+        {
+          "name": "beIN Sports 3",
+          "url": "https://deathless.pantonum1.workers.dev/b3.m3u8"
+        },
+        {
+          "name": "beIN Sports 4",
+          "url": "https://deathless.pantonum1.workers.dev/b4.m3u8"
+        },
+        {
+          "name": "beIN Sports 5",
+          "url": "https://deathless.pantonum1.workers.dev/b5.m3u8"
+        },
+        {
+          "name": "beIN Sports Max 1",
+          "url": "https://deathless.pantonum1.workers.dev/bm1.m3u8"
+        },
+        {
+          "name": "beIN Sports Max 2",
+          "url": "https://deathless.pantonum1.workers.dev/bm2.m3u8"
+        },
+        {
+          "name": "S Sport 1",
+          "url": "https://deathless.pantonum1.workers.dev/ss.m3u8"
+        },
+        {
+          "name": "S Sport 2",
+          "url": "https://deathless.pantonum1.workers.dev/ss2.m3u8"
+        },
+        {
+          "name": "Smart Spor 1",
+          "url": "https://deathless.pantonum1.workers.dev/smarts.m3u8"
+        },
+        {
+          "name": "Tivibu Spor 1",
+          "url": "https://deathless.pantonum1.workers.dev/t1.m3u8"
+        },
+        {
+          "name": "Tivibu Spor 2",
+          "url": "https://deathless.pantonum1.workers.dev/t2.m3u8"
+        },
+        {
+          "name": "Eurosport 1",
+          "url": "https://deathless.pantonum1.workers.dev/eu1.m3u8"
+        },
+        {
+          "name": "Eurosport 2",
+          "url": "https://deathless.pantonum1.workers.dev/eu2.m3u8"
+        }
+      ]
+    }
+  }
+}

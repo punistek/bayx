@@ -11,6 +11,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 
 from . import clean, guard, identity, liveness, output, parse, sources
+from . import site_providers
 from . import config as C
 from .fetch import get_json, get_text
 from .health import SourceState, UrlState, geo_grace
@@ -22,6 +23,7 @@ log = logging.getLogger("build")
 class RunOptions:
     search: bool = True          # GitHub araması
     fetch_sources: bool = True   # kaynak listelerini indir (False = yalnızca hafıza + mevcut liste)
+    fetch_sites: bool = True     # siteye özel spor çözücülerini çalıştır
     deep: bool = C.DEEP_PROBE
     progress: bool = C.PROGRESS_CHECK
     max_test: int = C.MAX_TEST
@@ -38,6 +40,7 @@ class RunStats:
     filtered: Counter = field(default_factory=Counter)
     candidates: int = 0
     from_memory: int = 0
+    from_sites: int = 0
     tr_sources: int = 0
     skipped_files: int = 0
     quarantined: int = 0
@@ -108,6 +111,11 @@ def gather(reg, opts, st, src_state, url_state, armor_urls):
         # yalnızca-test modu: mevcut tr.m3u'daki zırhlı olmayan kayıtlar
         if os.path.exists(C.TR_FILE):
             pool = parse.parse(open(C.TR_FILE, encoding="utf-8").read(), source=C.TR_FILE)
+    if opts.fetch_sites and opts.fetch_sources:
+        site_chans = site_providers.collect()
+        pool.extend(site_chans)
+        st.from_sites = len(site_chans)
+        log.info("Site çözücülerinden %d aday (hepsi sağlık testine tabi)", st.from_sites)
     for c in pool:
         c.raw_name = c.name
     # Hafıza: kaynak listesi bu tur gelmese bile son günlerde sağlam olan adresleri tekrar dene.

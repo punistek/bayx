@@ -39,6 +39,7 @@ def main():
     ap.add_argument("--no-deep", action="store_true", help="yalnızca FFprobe'u kapat")
     ap.add_argument("--max-test", type=int, default=None, help="en fazla test edilecek adres")
     ap.add_argument("--dry-run", action="store_true", help="dosya yazma")
+    ap.add_argument("--no-sites", action="store_true", help="siteye özel spor keşif modüllerini çalıştırma")
     ap.add_argument("--state-only", action="store_true",
                     help="yalnızca test hafızasını güncelle (Türkiye runner'ı için), liste yayınlama")
     ap.add_argument("--force", action="store_true", help="koruma kontrolünü aş (FORCE_PUBLISH)")
@@ -56,6 +57,7 @@ def main():
     opts = RunOptions(
         search=not (a.no_search or a.test_only),
         fetch_sources=not a.test_only,
+        fetch_sites=not (a.no_sites or a.test_only),
         deep=C.DEEP_PROBE and not (a.fast or a.no_deep),
         progress=C.PROGRESS_CHECK and not a.fast,
         max_test=a.max_test or C.MAX_TEST,
