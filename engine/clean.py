@@ -52,7 +52,8 @@ def has_credentials(url):
         if keys & C.CRED_QUERY_KEYS:
             return True
     path = p.path.lower()
-    if path.endswith(("/get.php", "/player_api.php", "/xmltv.php", "/panel_api.php")):
+    if path.endswith(("/get.php", "/player_api.php", "/xmltv.php", "/panel_api.php", "/live.php",
+                      "/portal.php", "/stalker_portal/server/load.php")):
         return True
     segs = [s for s in p.path.split("/") if s]
     if len(segs) == 4 and segs[0].lower() == "live" and _DIGITS_RE.match(segs[3]):
@@ -202,7 +203,7 @@ def refine(channels, stats=None):
         if has_credentials(ch.url):
             stats["credential"] = stats.get("credential", 0) + 1
             continue
-        if is_banned(ch):
+        if is_banned(ch) or _BANNED_RE.search(getattr(ch, "src_group", "") or ""):
             stats["banned"] = stats.get("banned", 0) + 1
             continue
         # İsim çöpse (SVG/data/URL) kanalı ATMA — çalışıyor olabilir, adını kurtar.

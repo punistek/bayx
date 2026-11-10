@@ -85,6 +85,9 @@ def fetch_source(item):
     txt = get_text(url, timeout=C.HTTP_TIMEOUT)
     if not txt or "#EXTINF" not in txt.upper():
         return url, kind, None
+    if any(m in txt[:200000] for m in C.OWN_OUTPUT_MARKERS):
+        log.info("Kendi çıktımızın kopyası, atlandı: %s", url)
+        return url, "own", []
     return url, kind, parse.parse(txt, source=url)
 
 
@@ -105,9 +108,24 @@ def gather(reg, opts, st, src_state, url_state, armor_urls):
         # yalnızca-test modu: mevcut tr.m3u'daki zırhlı olmayan kayıtlar
         if os.path.exists(C.TR_FILE):
             pool = parse.parse(open(C.TR_FILE, encoding="utf-8").read(), source=C.TR_FILE)
-    st.raw = len(pool)
     for c in pool:
         c.raw_name = c.name
+    # Hafıza: kaynak listesi bu tur gelmese bile son günlerde sağlam olan adresleri tekrar dene.
+    # Bunlar da aynı süzgeçlerden geçer (yabancı / radyo / şifreli adresler geri gelmez).
+    have = {c.url.strip() for c in pool}
+    for rec in url_state.recent_good(include_blocked=not opts.fetch_sources):
+        u = rec.get("url", "")
+        srcu = rec.get("source") or "memory"
+        if (not u or u in have or rec.get("armored") or not rec.get("name")
+                or sources.excluded(srcu) or sources.foreign_path(srcu)):
+            continue
+        c = parse.Channel(name=rec["name"], url=u, logo=rec.get("logo", ""), group="",
+                          tvg_id=rec.get("tvg_id", ""), headers=rec.get("headers") or {}, source=srcu)
+        c.raw_name = c.name
+        c.alive = "memory"
+        pool.append(c)
+        have.add(u)
+    st.raw = len(pool)
 
     refined = clean.refine(pool, st.filtered)
     # 1. tur (katı): çok anlamlı adlar Türkiye işareti olmadan eşlenmez
@@ -118,6 +136,7 @@ def gather(reg, opts, st, src_state, url_state, armor_urls):
         per_src[c.source][0] += 1
         per_src[c.source][1] += strict[id(c)]
     tr_src = {s for s, (n, k) in per_src.items() if n and k / n >= 0.25}
+    tr_strong = {s for s, (n, k) in per_src.items() if n >= 5 and k / n >= 0.5}
     st.tr_sources = len(tr_src)
     # 2. tur: Türk listelerindeki kayıtlar artık "NTV", "Star" gibi adlarla da eşlenebilir
     known_map = {id(c): (_apply_identity(reg, c, True) if c.source in tr_src else strict[id(c)])
@@ -128,27 +147,14 @@ def gather(reg, opts, st, src_state, url_state, armor_urls):
         if u in seen:
             continue
         known = known_map[id(c)]
-        if not reg.tr_relevant(c, known, c.source in tr_src):
+        if not reg.tr_relevant(c, known, c.source in tr_strong):
             st.filtered["foreign"] += 1
             continue
         seen.add(u)
         out.append(c)
-
-    # Hafıza: kaynak listesi bu tur gelmese bile son günlerde sağlam olan adresleri tekrar dene
-    for rec in url_state.recent_good(include_blocked=not opts.fetch_sources):
-        u = rec.get("url", "")
-        if not u or u in seen or rec.get("armored") or clean.has_credentials(u):
-            continue
-        c = parse.Channel(name=rec.get("name") or "", url=u, logo=rec.get("logo", ""),
-                          group=rec.get("group", ""), tvg_id=rec.get("tvg_id", ""),
-                          headers=rec.get("headers") or {}, source=rec.get("source") or "memory")
-        c.raw_name = c.name
-        if not c.name:
-            continue
-        _apply_identity(reg, c)
-        seen.add(u)
-        out.append(c)
-        st.from_memory += 1
+        if c.alive == "memory":
+            st.from_memory += 1
+            c.alive = None
     st.candidates = len(out)
     log.info("Aday: %d (hafızadan: %d) · elenen: %s", len(out), st.from_memory, dict(st.filtered))
     return out

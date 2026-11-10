@@ -127,14 +127,18 @@ CATALOG = [
 ]
 
 # Katalog dışı adlarda Türkiye'yle ilgili olduğunu gösteren işaretler.
-_TR_TOKENS = {"turk", "turkiye", "haber", "kanal", "trt", "spor", "yerel", "kent",
+_TR_TOKENS = {"turk", "turkiye", "haber", "trt", "spor", "yerel", "kent", "sehir",
               "belediye", "medya", "televizyon", "muzik", "cocuk", "belgesel", "karadeniz",
               "anadolu", "ege", "akdeniz", "guneydogu", "dogu", "postasi", "postasi"}
-_TR_CHARS = set("çğışöüÇĞİŞÖÜ")
+_TR_ONLY_CHARS = set("ğışĞİŞ")          # Almanca/Fransızcada da olan ç ö ü güçlü işaret sayılmaz
+_TR_SOFT_CHARS = set("çöüÇÖÜ")
+_IL_SET = set(C.IL_ADLARI)
 _FOREIGN_RE = re.compile(
     r"\b(news channel|fox news|fox sports|deportes|espanol|español|usa|telugu|tamil|hindi|"
     r"pluto|drew barrymore|daily show|graham norton|game ?show|star (maa|vijay|pravah|utsav|jalsha)|"
-    r"turkmenistan|madinah|makkah|thaqalayn|fashion ?one|lone star)\b", re.I)
+    r"turkmenistan|madinah|makkah|thaqalayn|fashion ?one|lone star|fran[cç]ais|fernsehen|sachsen|"
+    r"th[uü]ringen|[oö]sterreich|m[uü]nchen|bayern|r[aá]dio|deutsch|polska|россия|russia|syria|"
+    r"kurdistan|kirkuk|iraq|irak|azerbaijan|baku|tbilisi|tashkent|uzbek)\b", re.I)
 
 
 # Dünyada başka ülkelerde de aynı adla yayın yapan kanallar (Rus NTV, İtalyan TV8, Moğol TV5,
@@ -143,11 +147,16 @@ AMBIGUOUS = {"ntv", "startv", "showtv", "now", "tv8", "tv4", "tv5", "a2", "tlc",
              "bloomberght", "tv24", "tv360", "cnbce", "powertv", "numberone", "spacetoon", "sportstv",
              "flashtv", "birtv", "kanald", "kanal7", "atv"}
 # Türk yayıncı/CDN alan adları (adreste geçiyorsa güçlü Türkiye işareti)
-TR_HOSTS = (".com.tr", ".net.tr", ".org.tr", ".gov.tr", ".tv.tr", "daioncdn", "ercdn", "turknet",
-            "mediatriple", "trt.", "medyanet", "tmgrup", "ciner", "dogus", "demiroren", "turkmedya",
-            "artidijital", "tvkulesi", "canlitv", "puhutv", "tabii", "tivibu", "kablowebtv", "dsmart",
-            "ensonhaber", "haberturk", "sozcu", "halktv", "tele1", "tgrthaber", "showtv",
-            "kanald", "teve2", "trt.")
+# Türk yayıncı/CDN alan adları. Uzun ve ayırt edici olanlar alt dize olarak aranır,
+# kısa olanlar (ciner, dogus, trt...) yalnızca alan adının TAM bir parçasıysa sayılır
+# ("ciner" ≠ "cinerama.uz").
+TR_HOSTS = ("daioncdn", "ercdn", "turknet", "mediatriple", "medyanet", "demiroren", "turkmedya",
+            "artidijital", "tvkulesi", "canlitv", "puhutv", "tivibu", "kablowebtv", "dsmart",
+            "ensonhaber", "haberturk", "halktv", "tgrthaber", "showtv", "taksimbilisim",
+            "euromediacenter", "haber100", "medyahost", "canliyayin", "ozelip", "radyotvonline",
+            "turksat", "kablonet", "trtcdn", "dogannet", "medyaradar", "yildiztv", "socialsmart",
+            "kuzeykibris", "fasttvcdn", "tvkur", "radyotv", "canlitvlive", "sozcu", "tele1")
+TR_HOST_TOKENS = {"ciner", "dogus", "trt", "tmgrup", "tabii", "kanald", "teve2", "yayin", "tr"}
 _TVG_CC = re.compile(r"\.([a-z]{2})(?:@[\w-]+)?$", re.I)
 _TR_PATH = ("turk", "turkiye", "turkey", "/tr.", "/tr/", "_tr.", "-tr.", "/tr_", "/tur/", "trt",
             "kanal", "ulusal", "yerel", "canli")
@@ -158,18 +167,51 @@ def tvg_country(tvg_id):
     return m.group(1).lower() if m else ""
 
 
+def host_of(url):
+    try:
+        return (url.split("/")[2] if "//" in url else url).split("@")[-1].split(":")[0].lower()
+    except IndexError:
+        return ""
+
+
+def foreign_host(url):
+    """Sunucu yabancı ülke uzantılı mı? (.ru, .mn, .de, .com.br ...)"""
+    parts = host_of(url).split(".")
+    return len(parts) >= 2 and parts[-1] in C.FOREIGN_TLDS
+
+
+def tr_host(url):
+    h = fold(host_of(url))
+    if h.endswith(".tr") or any(x in h for x in TR_HOSTS):
+        return True
+    return bool(set(re.split(r"[.\-]", h)) & TR_HOST_TOKENS)
+
+
+def src_group_evidence(ch):
+    """Kaynaktaki grup adı Türkiye diyor mu? (bizim kendi TR- etiketlerimiz sayılmaz)"""
+    g = getattr(ch, "src_group", "") or ""
+    if not g or g in C.GROUP_ORDER:
+        return False
+    grp = " " + re.sub(r"[^a-z]+", " ", fold(g)) + " "
+    return any(f" {t} " in grp for t in ("tr", "turk", "turkiye", "turkey", "turkce", "turkish",
+                                          "ulusal", "yerel", "yerli"))
+
+
+def name_evidence(nm):
+    if any(c in _TR_ONLY_CHARS for c in nm):
+        return True
+    toks = set(re.split(r"[^a-z0-9]+", fold(nm)))
+    return bool(toks & _TR_TOKENS) or bool(toks & _IL_SET)
+
+
 def tr_evidence(ch):
     """Bu kayıt Türkiye'ye ait mi? (tvg-id .tr, Türk alan adı, Türk kaynak yolu, TR grup adı)"""
-    if tvg_country(ch.tvg_id) == "tr":
-        return True
-    host = fold(ch.url.split("/")[2] if "//" in ch.url else ch.url)
-    if any(h in host for h in TR_HOSTS):
+    if tvg_country(ch.tvg_id) == "tr" or tr_host(ch.url):
         return True
     src = fold(ch.source)
     if any(t in src for t in _TR_PATH):
         return True
-    grp = " " + re.sub(r"[^a-z]+", " ", fold(ch.group)) + " "
-    return any(f" {t} " in grp for t in ("tr", "turk", "turkiye", "turkey", "ulusal", "yerel", "yerli"))
+    return src_group_evidence(ch)
 
 
 def key_of(name):
@@ -250,24 +292,29 @@ class Registry:
         return cid in self.meta
 
     def tr_relevant(self, ch, known, source_is_tr=False):
-        """Katalog dışı kanal Türkiye'yle ilgili mi? (yabancı çöpü ayıklar)"""
-        if known or ch.armored:
+        """Kayıt Türkiye'yle ilgili mi? Her kayıt KENDİ işaretine göre değerlendirilir:
+        karışık listelerdeki (ör. iptv-az-tr-ru) Rus/Azeri kanalları içeri sızmaz."""
+        if ch.armored:
             return True
         cc = tvg_country(ch.tvg_id)
         if cc and cc != "tr":
             return False
+        if known:
+            return True
         nm = ch.raw_name or ch.name
         if _FOREIGN_RE.search(nm):
             return False
-        if source_is_tr:
+        # güçlü işaret: .tr tvg-id, Türk sunucusu, kaynakta Türk grup adı
+        if cc == "tr" or tr_host(ch.url) or src_group_evidence(ch):
             return True
-        if any(c in _TR_CHARS for c in nm):
+        # yabancı ülke sunucusu (.ru .uz .mn .de ...) → güçlü işaret yoksa yabancı
+        if foreign_host(ch.url):
+            return False
+        # orta işaret: ğ ı ş İ, il adı, "haber/spor/türk" gibi kelimeler, ç ö ü
+        if name_evidence(nm) or any(c in _TR_SOFT_CHARS for c in nm):
             return True
-        # Not: ch.group burada kullanılmaz — eski listelerde yabancı kanallar da "TR-ULUSAL" olabiliyor.
-        toks = set(re.split(r"[^a-z0-9]+", fold(nm)))
-        if toks & _TR_TOKENS:
-            return True
-        return tr_evidence(ch)
+        # zayıf işaret: kaynağın çoğunluğu kesin Türk kanalıysa (≥%50) adı nötr olanları al
+        return bool(source_is_tr)
 
 
 def load_registry(fetch_json=None):

@@ -90,12 +90,17 @@ def test_ffprobe_video_and_audio(server):
     assert p.deep and p.has_video and p.has_audio and p.vcodec == "h264" and p.height == 360
 
 
-@pytest.mark.skipif(not shutil.which("ffprobe"), reason="ffprobe yok")
-def test_ffprobe_audio_only_is_unstable(server):
+def test_radio_hls_is_dead(server):
+    """Yalnızca ses taşıyan HLS (radyo) TS içindeki PMT okunarak elenir."""
     p = liveness.probe(server + "/audio/index.m3u8")
-    assert p.status == "ok"
-    liveness.deep_probe(p)
-    assert p.has_video is False and p.status == "unstable"
+    assert p.status == "dead" and p.reason.startswith("radio")
+
+
+def test_ts_pmt_video_detection():
+    av = open(os.path.join(os.path.dirname(__file__), "seg_av.ts"), "rb").read()
+    au = open(os.path.join(os.path.dirname(__file__), "seg_audio.ts"), "rb").read()
+    assert liveness.ts_has_video(av) is True and liveness.ts_has_video(au) is False
+    assert liveness.audio_only_bytes(bytes([0xFF, 0xF1, 0x50, 0x80]) + b"x" * 4000)   # AAC radyo
 
 
 def test_ts_byte_checks():
@@ -178,6 +183,41 @@ def test_foreign_filtered():
 ])
 def test_credentials(url, cred):
     assert clean.has_credentials(url) is cred
+
+
+def test_comma_inside_attribute():
+    txt = '#EXTM3U\n#EXTINF:-1 tvg-name="TR: TV 8,5 " group-title="TR-SPOR",TV 8.5\nhttp://x/a.m3u8\n'
+    c = parse(txt)[0]
+    assert c.name == "TV 8.5" and c.group == "TR-SPOR"
+
+
+@pytest.mark.parametrize("name,url,grp,source,strong,expect", [
+    ("BALABOL", "https://cdn-dvr.ntv.ru/Balabol/index.m3u8", "", "http://a/iptv-az-tr-ru/index.m3u", True, False),
+    ("SBN", "https://cdn4.skygo.mn/live/SBN.m3u8", "", "http://a/list.m3u", True, False),
+    ("ESENLER SEHIR EKRANI", "https://yayin30.haber100.com/x.m3u8", "", "http://a/x.m3u", False, True),
+    ("DERINTV", "https://cdn1-derintv.yayin.com.tr/d.m3u8", "", "http://a/x.m3u", False, True),
+    ("NDR FERNSEHEN", "https://mcdn.ndr.de/ndr.m3u8", "", "http://a/german-turkish.m3u", False, False),
+    ("TAKESHI S CASTLE", "https://jmp2.uk/plu.m3u8", "", "http://a/x.m3u", False, False),
+    ("YOL TV", "https://live.yoltv.com/hls/stream.m3u8", "Türk Kanalları", "http://a/x.m3u", False, True),
+    ("90 TV", "https://live.euromediacenter.com/ezgitv/index.m3u8", "", "http://a/x.m3u", False, True),
+])
+def test_relevance_per_entry(name, url, grp, source, strong, expect):
+    reg = identity.Registry()
+    c = Channel(name=clean.clean_name(name), url=url, group=grp, source=source)
+    c.raw_name = name
+    cid, known = reg.resolve(c, strong)
+    assert reg.tr_relevant(c, known, strong) is expect, name
+
+
+def test_sources_excluded_and_radio_paths(monkeypatch):
+    from engine import sources
+    monkeypatch.setenv("GITHUB_REPOSITORY", "punistek/bayx")
+    assert sources.excluded("https://raw.githubusercontent.com/batuhansabri55/AkcagozTV_Canli/main/tr.m3u")
+    assert sources.excluded("https://raw.githubusercontent.com/punistek/bayx/main/tr.m3u")
+    assert not sources.excluded("https://raw.githubusercontent.com/iptv-org/iptv/master/streams/tr.m3u")
+    assert sources.foreign_path("keep_one/Oldies.m3u")
+    assert sources.foreign_path("m3u-radio-music-playlists/x.m3u")
+    assert not sources.foreign_path("kanallar.m3u")
 
 
 def test_parse_headers_roundtrip():

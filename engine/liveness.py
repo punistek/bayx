@@ -135,6 +135,72 @@ def _is_aac_or_id3(b):
     return len(b) > 2 and b[0] == 0xFF and (b[1] & 0xF6) == 0xF0
 
 
+_VIDEO_ST = {0x01, 0x02, 0x10, 0x1B, 0x24, 0x42, 0xD1, 0xEA, 0x33}
+_AUDIO_ST = {0x03, 0x04, 0x0F, 0x11, 0x81, 0x82, 0x83, 0x84, 0x87, 0x06}
+
+
+def ts_has_video(b):
+    """MPEG-TS içinde PAT→PMT okuyup video akışı var mı bak.
+    True: video var · False: PMT var ama yalnızca ses · None: PMT bulunamadı."""
+    n = len(b)
+    start = next((o for o in range(min(188, n)) if b[o] == 0x47 and o + 188 < n and b[o + 188] == 0x47), None)
+    if start is None:
+        return None
+    pmt_pids = set()
+    for o in range(start, n - 187, 188):
+        if b[o] != 0x47:
+            continue
+        pusi = b[o + 1] & 0x40
+        pid = ((b[o + 1] & 0x1F) << 8) | b[o + 2]
+        afc = (b[o + 3] >> 4) & 3
+        p = o + 4
+        if afc in (2, 3):
+            p += 1 + b[o + 4]
+        if not pusi or afc == 2 or p >= o + 188:
+            continue
+        p += 1 + b[p]                      # pointer_field
+        if p + 8 >= o + 188:
+            continue
+        table = b[p]
+        sec_len = ((b[p + 1] & 0x0F) << 8) | b[p + 2]
+        end = min(p + 3 + sec_len - 4, o + 188)
+        if pid == 0 and table == 0x00:
+            q = p + 8
+            while q + 4 <= end:
+                prog = (b[q] << 8) | b[q + 1]
+                if prog:
+                    pmt_pids.add(((b[q + 2] & 0x1F) << 8) | b[q + 3])
+                q += 4
+        elif pid in pmt_pids and table == 0x02:
+            info_len = ((b[p + 10] & 0x0F) << 8) | b[p + 11]
+            q = p + 12 + info_len
+            types = []
+            while q + 5 <= end:
+                types.append(b[q])
+                q += 5 + (((b[q + 3] & 0x0F) << 8) | b[q + 4])
+            if types:
+                return any(t in _VIDEO_ST for t in types)
+    return None
+
+
+def audio_only_bytes(b):
+    """Segment/akış yalnızca ses mi? (radyo yayınları: AAC/MP3/ID3+AAC, ses-only TS)"""
+    if not b:
+        return False
+    if _is_mpegts(b):
+        return ts_has_video(b) is False
+    if _is_fmp4(b):
+        return False
+    head = b[:3]
+    if head == b"ID3":
+        size = (b[6] << 21) | (b[7] << 14) | (b[8] << 7) | b[9] if len(b) > 10 else 0
+        rest = b[10 + size:]
+        if _is_mpegts(rest):
+            return ts_has_video(rest) is False
+        return True
+    return len(b) > 2 and b[0] == 0xFF and (b[1] & 0xE0) == 0xE0     # ADTS/MP3 çerçevesi
+
+
 def media_bytes_ok(b, encrypted=False):
     if not b or len(b) < C.SEGMENT_MINBYTES:
         return False
@@ -228,6 +294,9 @@ def _probe_once(url, headers, insecure):
         text = _text(body)
         media_url, media_text = final, text
         variants = parse_master(text, final)
+        if variants and all(v["codecs"] and not re.search(r"avc|hvc|hev|vp0?[89]|av01|mp4v", v["codecs"], re.I)
+                            for v in variants):
+            raise _Fail("dead", "radio (audio only)")
         if variants:
             ordered = _pick_variant(variants)
             last_err = None
@@ -265,6 +334,8 @@ def _probe_once(url, headers, insecure):
             p.encrypted = "drm"
             raise _Fail("dead", "drm")
         p.encrypted = m["key"]
+        if all(re.search(r"\.(aac|mp3|m4a|ac3|ogg|opus)(\?|$)", x, re.I) for x in m["segs"][-3:]):
+            raise _Fail("dead", "radio (audio only)")
         # canlı uca yakın segment (son segment henüz yazılıyor olabilir → sondan 2.)
         seg = m["segs"][-2] if len(m["segs"]) >= 2 else m["segs"][-1]
         c4, ct4, b4, _, _ = _get(seg, headers, C.SEGMENT_READ_BYTES, t, insecure,
@@ -275,6 +346,8 @@ def _probe_once(url, headers, insecure):
             raise _Fail("dead", f"segment http {c4}", c4)
         if not media_bytes_ok(b4, encrypted=bool(p.encrypted)):
             raise _Fail("dead", "segment not media")
+        if not p.encrypted and audio_only_bytes(b4):
+            raise _Fail("dead", "radio (audio only)")
         p._media_url, p._seq, p._last_seg = media_url, m["seq"], m["segs"][-1]
         p._target, p._t = m["target"] or 6.0, time.monotonic()
         p.status, p.reason = "ok", "hls segment ok"
@@ -293,6 +366,10 @@ def _probe_once(url, headers, insecure):
         return p
 
     # ---------------------------------------------------------------- doğrudan akış
+    if ct.startswith("audio/") or re.search(r"\.(aac|mp3|m4a|ogg|opus|pls)(\?|$)", final, re.I):
+        raise _Fail("dead", "radio (audio only)")
+    if audio_only_bytes(body):
+        raise _Fail("dead", "radio (audio only)")
     p.kind = "ts" if _is_mpegts(body) else "?"
     if media_bytes_ok(body):
         p.status, p.reason = "ok", "direct media ok"
@@ -323,7 +400,7 @@ def probe(url, headers=None, retries=1):
         except _Fail as f:
             last = Probe(url=url, status=f.status, reason=f.reason, http=f.http,
                          tls_insecure=insecure)
-            if f.status == "blocked" or f.reason.startswith(("vod", "drm", "http 404", "http 410")):
+            if f.status == "blocked" or f.reason.startswith(("vod", "drm", "http 404", "http 410", "radio")):
                 return last                       # tekrar denemeye değmez
         except requests.exceptions.Timeout:
             last = Probe(url=url, status="dead", reason="timeout")

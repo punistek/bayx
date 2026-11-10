@@ -66,6 +66,18 @@ def _q(v):
     return (v or "").replace('"', "'")
 
 
+def _split_extinf(line):
+    """#EXTINF satırını (öznitelikler, ad) diye böl. Tırnak içindeki virgülü atla:
+    #EXTINF:-1 tvg-name="TV 8,5" group-title="X",TV 8,5  →  ad = 'TV 8,5'"""
+    inq = False
+    for i, ch in enumerate(line):
+        if ch == '"':
+            inq = not inq
+        elif ch == "," and not inq:
+            return line[:i], line[i + 1:]
+    return line, ""
+
+
 def _get(d, key):
     for k, v in d.items():
         if k.lower() == key:
@@ -116,7 +128,7 @@ def parse(text, source=""):
             continue
         up = line.upper()
         if up.startswith("#EXTINF"):
-            head, _, nm = line.partition(",")
+            head, nm = _split_extinf(line)
             attrs = dict(ATTR_RE.findall(head))
             name = nm.strip() or attrs.get("tvg-name", "") or "Adsız"
             logo = attrs.get("tvg-logo", "")

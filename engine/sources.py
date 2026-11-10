@@ -17,6 +17,7 @@ Aday m3u kaynaklarını toplar:
 import logging
 import os
 import re
+import time
 import urllib.parse
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
@@ -36,9 +37,19 @@ _TR_FILE_HINTS = ("turk", "turkiye", "turkey", "tr", "tur", "trt", "kanal", "ulu
                   "canli", "spor", "haber", "ulke")
 
 
+def excluded(url):
+    """Kendi çıktımız / kopyası / elle dışlanan kaynak mı?"""
+    low = url.lower()
+    own = os.environ.get("GITHUB_REPOSITORY", "").lower()
+    pats = [x.lower() for x in C.EXCLUDE_SOURCES] + ([own] if own else [])
+    return any(f"/{x}/" in low or low.endswith(f"/{x}") for x in pats if x)
+
+
 def foreign_path(path):
-    """Dosya yolu yabancı ülke/dil listesi mi? (ör. eng/business.m3u, us.m3u, countries/de.m3u)"""
+    """Dosya yolu yabancı ülke/dil ya da radyo listesi mi? (eng/business.m3u, us.m3u, Oldies...)"""
     low = path.lower()
+    if any(w in low for w in C.SKIP_PATH_WORDS):
+        return True
     parts = re.split(r"[/]", low)
     for seg in parts[:-1]:
         if seg in C.FOREIGN_PATH_CODES:
@@ -149,6 +160,12 @@ def _since():
     return (datetime.now(timezone.utc) - timedelta(days=C.RECENT_DAYS)).strftime("%Y-%m-%d")
 
 
+def _search(url):
+    j = get_json(url, headers=gh_headers())
+    time.sleep(C.SEARCH_PAUSE)          # dakikalık arama sınırı (token'lı 30/dk)
+    return j
+
+
 def gh_search_repos():
     repos = {}
     queries = [f"{t} pushed:>={_since()}" for t in C.SEARCH_TERMS] + \
@@ -156,7 +173,7 @@ def gh_search_repos():
     for q in queries:
         url = "https://api.github.com/search/repositories?" + urllib.parse.urlencode(
             {"q": q, "sort": "updated", "order": "desc", "per_page": 40})
-        j = get_json(url, headers=gh_headers())
+        j = _search(url)
         if not j:
             continue
         for it in j.get("items", []):
@@ -175,6 +192,7 @@ def gh_search_code():
     for term in C.CODE_SEARCH_TERMS:
         url = "https://api.github.com/search/code?" + urllib.parse.urlencode({"q": term, "per_page": 30})
         j = get_json(url, headers=gh_headers())
+        time.sleep(6.5)                  # kod araması: dakikada 10 istek
         for it in (j or {}).get("items", []):
             repo = (it.get("repository") or {}).get("full_name")
             path = it.get("path", "")
@@ -228,6 +246,7 @@ def collect_all(search=True, source_state=None):
 
     out = []
     skipped = 0
+    found = {u: k for u, k in found.items() if not excluded(u)}
     for u, kind in found.items():
         if kind == "auto" and source_state and source_state.quarantined(u):
             skipped += 1

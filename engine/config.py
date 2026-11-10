@@ -103,6 +103,19 @@ RECENT_DAYS   = 45
 MAX_REPOS     = _env_int("MAX_REPOS", 150)
 MAX_FILES_PER_REPO = _env_int("MAX_FILES_PER_REPO", 40)   # büyük depolarda TR'ye en yakın N dosya
 
+# Asla kaynak olarak kullanılmayacak depolar/adresler (kendi eski çıktıların, kopyaları).
+# Kendi deposu (GITHUB_REPOSITORY) ve içinde motor imzası olan her liste zaten otomatik dışlanır.
+EXCLUDE_SOURCES = ["batuhansabri55/AkcagozTV_Canli", "punistek/bayx"]
+OWN_OUTPUT_MARKERS = ("# --- GÜNCEL CANLI LİSTE", "PuuStream IPTV Motoru", "AkcagozTV Canlı")
+# Yolunda bunlar geçen otomatik dosyalar indirilmez (radyo/müzik çalma listeleri)
+SKIP_PATH_WORDS = ("radio", "radyo", "radios", "music-playlists", "podcast", "fm-", "-fm", "/fm/",
+                   "oldies", "vod", "movies", "series", "xxx", "adult")
+# Bu ülke uzantılı sunuculardaki, Türkiye işareti taşımayan kanallar yabancı sayılır
+FOREIGN_TLDS = set("""ru ua by kz uz kg tj tm mn de at ch br bg pl cz sk fr it es pt in pk ir iq cn jp kr
+uk gr ro rs hr ba al mk md lt lv ee fi se no dk nl be hu si ar mx cl co pe ve vn th id my ph eg sa ae
+jo lb sy ma dz tn ly sd ng za ke ge am il au nz ca us ec bo py uy cu do""".split())
+SEARCH_PAUSE = 2.2      # GitHub arama istekleri arası bekleme (sn) — dakikalık sınıra takılmamak için
+
 # Otomatik bulunan dosyalarda yolu yabancı ülke/dil gösterenler indirilmez (ör. /eng/, us.m3u, countries/de.m3u)
 FOREIGN_PATH_CODES = set("""us usa uk gb de deu ger fr fra it ita es spa ru rus ua pl ro bg gr nl be pt por
 br ar mx in hin ind pk ir fas per iq sa ae eg ma dz tn cn chi zh jp jpn kr kor id my th vn ph ca au mn mon
@@ -132,7 +145,7 @@ EPG_URLS = [u for u in os.environ.get("EPG_URLS", "").split(",") if u.strip()]
 # ================================================================= güvenlik
 # Kullanıcı adı/şifre taşıyan adresler (Xtream panelleri, get.php?username=...) otomatik
 # toplanan kaynaklardan ALINMAZ ve herkese açık çıktılara yazılmaz.
-CRED_QUERY_KEYS = {"username", "password", "user", "pass", "pwd", "passwd"}
+CRED_QUERY_KEYS = {"username", "password", "user", "pass", "pwd", "passwd", "mac", "token_user"}
 CRED_PATH_SKIP  = {"hls", "live", "stream", "streams", "tv", "channel", "channels", "play",
                    "video", "media", "cdn", "content", "out", "v1", "v2", "api", "tr", "iptv", "ch"}
 
@@ -200,21 +213,25 @@ GROUP_RULES = [
                   "eba", "trt genc", "cizgi", "pepee"]),
     (G_DINI,     ["dini", "diyanet", "semerkand", "lalegul", "kuran", "quran", "islam", "mekke",
                   "medine", "makkah", "madinah", "hilal", "rehber tv", "dost tv", "kanal 24 dini",
-                  "berat", "vav tv", "mesaj tv", "ilahi"]),
+                  "berat", "vav tv", "mesaj tv", "ilahi", "mukabele", "ahad tv", "al zahra"]),
     (G_SPOR,     ["spor", "sport", "bein", "s sport", "tjk", "tay tv", "fb tv", "gs tv", "bjk tv",
-                  "trabzonspor", "nba", "eurosport", "tivibu spor", "smart spor", "exxen spor", "derbi"]),
+                  "trabzonspor", "nba", "eurosport", "tivibu spor", "smart spor", "exxen spor", "derbi",
+                  "serbest vurus", "futbol", "lig", "satranc"]),
     (G_HABER,    ["haber", "news", "cnn", "ntv", "halk tv", "sozcu", "tele1", "tgrt", "bloomberg",
                   "ekonomi", "finans", "cnbc", "ekotur", "tv100", "tvnet", "ulke tv", "akit", "tbmm",
                   "a para", "bengu"]),
     (G_BELGESEL, ["belgesel", "documentary", "nat geo", "national geographic", "discovery", "dmax",
-                  "tlc", "history", "animal", "ciftci", "yaban", "av tv", "gezi", "viasat"]),
+                  "tlc", "history", "animal", "ciftci", "yaban", "av tv", "gezi", "viasat", "saglik",
+                  "gelisim", "paranin", "natural tv", "fit yasa", "bbc first"]),
     (G_MUZIK,    ["muzik", "music", "kral", "power", "number1", "number one", "dream turk", "nr1",
-                  "slow", "akustik", "taptaze", "damar", "arabesk", "turku", "pop tv", "rap"]),
-    (G_SINEMA,   ["sinema", "film", "movie", "cine", "yesilcam"]),
+                  "slow", "akustik", "taptaze", "damar", "arabesk", "turku", "pop tv", "rap", "number 1",
+                  "kiss", "retro turk", "muzeyyen", "fashion", "hit"]),
+    (G_SINEMA,   ["sinema", "film", "movie", "cine", "cine5", "cinex", "yesilcam"]),
     (G_DIZI,     ["dizi", "series"]),
     (G_YEREL,    ["yerel", "kent", "belediye", "bolge", "karadeniz", "ege", "akdeniz", "guneydogu",
                   "dogu", "anadolu", "postasi", "diyar", "hunat", "ruha", "sunrtv", "sun rtv", "kay tv",
-                  "kaytv", "mercan", "frt", "cem tv", "brt", "ktv", "tontv", "ton tv"]),
+                  "kaytv", "mercan", "frt", "cem tv", "brt", "ktv", "tontv", "ton tv", "kibris", "kktc",
+                  "sehir ekrani", "esenler", "abb tv", "ada tv", "kanal sim", "gopsen"]),
     (G_ULUSAL,   ["ulusal", "national", "trt", "atv", "show", "fox", "star", "kanal d", "kanal 7",
                   "tv8", "tv 8", "beyaz", "teve2", "360", "tv4", "a2", "now", "tabii", "tv 24"]),
 ]
@@ -224,7 +241,7 @@ IL_ADLARI = """adana adiyaman afyon agri amasya ankara antalya artvin aydin bali
 bitlis bolu burdur bursa canakkale cankiri corum denizli diyarbakir edirne elazig erzincan erzurum
 eskisehir gaziantep antep giresun gumushane hakkari hatay isparta mersin icel istanbul izmir kars
 kastamonu kayseri kirklareli kirsehir kocaeli konya kutahya malatya manisa kahramanmaras maras mardin
-mugla mus nevsehir nigde ordu rize sakarya samsun siirt sinop sivas tekirdag tokat trabzon tunceli
+mugla mus afyonkarahisar nevsehir nigde ordu rize sakarya samsun siirt sinop sivas tekirdag tokat trabzon tunceli
 sanliurfa urfa usak van yozgat zonguldak aksaray bayburt karaman kirikkale batman sirnak bartin
 ardahan igdir yalova karabuk kilis osmaniye duzce alanya bodrum marmaris fethiye iskenderun
 tarsus edessa erciyes""".split()
