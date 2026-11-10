@@ -11,4 +11,24 @@
 # Buraya eklenen kaynaklar karantinaya alınmaz, her çalışmada taranır.
 # Kullanıcı adı/şifre içeren panel adresleri (get.php?username=..., /user/pass/123)
 # güvenlik nedeniyle herkese açık listeye ALINMAZ.
+https://github.com/omerdenizhan/IPTV-M3U/blob/main/m3u/turkiye.m3u
+https://github.com/omerdenizhan/IPTV-M3U/blob/main/m3u/turkiye-iptv-org.m3u
+https://github.com/kodlama155-ctrl/tv/blob/main/u.m3u
+https://github.com/kodlama155-ctrl/tv/blob/main/turkuvaz_discovered.m3u
+https://github.com/kodlama155-ctrl/tv/blob/main/tr.m3u
+https://github.com/kodlama155-ctrl/tv/blob/main/r.m3u
+https://github.com/kodlama155-ctrl/tv/blob/main/priority_sources.m3u
+https://github.com/kodlama155-ctrl/tv/blob/main/official_discovered.m3u
+https://github.com/kodlama155-ctrl/tv/blob/main/discovered.m3u
+https://github.com/kodlama155-ctrl/tv/blob/main/all.m3u
+https://raw.githubusercontent.com/kodlama155-ctrl/tv/main/tr.m3u
+https://github.com/iptv-turk-tr/iptv/blob/main/list.m3u
+https://github.com/iptv-turk-tr/iptv/blob/main/playlists/ulusal.m3u
+https://uycyyuuzyh.turknet.ercdn.net/nphindgytw/nowtv/nowtv.m3u8
+https://github.com/GithubSMK/TV-lists/blob/main/TR.m3u8
+https://github.com/arslanavdo355-sys/Benim-iptv/blob/main/tr-de-ku.m3u
+https://github.com/alpayaydemir-ui/tv-kanal-listesi/blob/main/turkiye-ucretsiz.m3u
+https://github.com/YosemiteSam6/turkiye-iptv-m3u-m3u8/blob/main/kanallar.m3u
+https://github.com/YosemiteSam6/turkiye-iptv-m3u-m3u8/blob/main/top50.m3u
+https://github.com/Hamsidenoyunlar/Turkiye-IPTV/blob/main/Turkiye_Duzenli_IPTV_Kasim_2026.m3u
 
