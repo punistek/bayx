@@ -3,6 +3,7 @@
 Tüm ayarlar burada. Kodun geri kalanına dokunmadan buradan ince ayar yapabilirsin.
 """
 import os
+import re as _re
 
 # ----------------------------------------------------------------- dosyalar
 TR_FILE      = "tr.m3u"        # üretilen son liste
@@ -63,8 +64,15 @@ YASAKLI_SET = {
 # VOD/film endpoint'i olduğu belli linkleri ele (canlı TV değildir).
 VOD_URL_HINTS = ["/movie/", "/movies/", "/series/", "/vod/", "/film/"]
 
+# Kanal ADI gibi durmayan çöp (SVG logo kodu, data URI, URL vb.) → kanal sayılmaz.
+JUNK_NAME_RE = _re.compile(
+    r"(svg|xmlns|viewbox|data:|base64|\bhttp\b|%3c|3csvg|</|/>|\bwww\b|\.png|\.jpg|\.svg)",
+    _re.I)
+MAX_NAME_LEN = 46        # bundan uzun "isim" büyük ihtimalle çöptür
+MIN_LETTER_RATIO = 0.45  # isimde harf oranı bu kadardan azsa (çoğu rakam/kod) çöptür
+MAX_COPY_PER_CHANNEL = 2 # aynı kanaldan en fazla kaç kopya (yedek) tutulsun
+
 # Kanal adı bu kalıplara UYUYORSA elenir (VOD numaralandırması vb.).
-import re as _re
 VOD_NAME_RE = _re.compile(r"\b(s\d{1,2}\s?e\d{1,2}|sezon\s?\d|b[öo]l[üu]m\s?\d|\(\d{4}\))\b", _re.I)
 
 # "Canlı TR kanalı mı?" ipuçları — TR önceliklendirme için (eleme değil, sıralama).

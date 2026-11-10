@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-puutv Canlı — otomatik canlı TV listesi güncelleyici.
+PUUTV Canlı — otomatik canlı TV listesi güncelleyici.
 
 Ne yapar:
   1. GitHub'da güncel Türkçe m3u depolarını arar (+ sources.txt kaynakları).
@@ -34,7 +34,7 @@ def main():
         except Exception:
             pass
     setup_log()
-    ap = argparse.ArgumentParser(description="puutv canlı TV listesi güncelleyici")
+    ap = argparse.ArgumentParser(description="PUUTV canlı TV listesi güncelleyici")
     ap.add_argument("--test-only", action="store_true",
                     help="Arama yapma; sadece mevcut tr.m3u'daki kanalları canlılık testinden geçir")
     args = ap.parse_args()
@@ -49,7 +49,8 @@ def main():
         chans = parse.parse(open(C.TR_FILE, encoding="utf-8").read()) if os.path.exists(C.TR_FILE) else []
         chans = [c for c in clean.refine(chans) if c.url.strip() not in armor_urls]
         chans = clean.dedupe(chans)
-        alive = order(test_liveness(chans))
+        alive = clean.cap_by_name(test_liveness(chans))
+        alive = order(alive)
         write_outputs(armor, alive)
     else:
         build.run()

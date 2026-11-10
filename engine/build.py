@@ -133,6 +133,10 @@ def run():
     if not cands:
         log.warning("Aday kanal bulunamadı. Zırhlı liste korunuyor.")
     alive = test_liveness(cands) if cands else []
+    before = len(alive)
+    alive = clean.cap_by_name(alive)          # aynı kanalın fazla kopyasını kırp
+    if before != len(alive):
+        log.info("İsim tekilleştirme: %d → %d (fazla kopyalar atıldı)", before, len(alive))
     alive = order(alive)
     write_outputs(armor, alive)
     log.info("BİTTİ · süre: %s", str(datetime.now() - t0).split(".")[0])
