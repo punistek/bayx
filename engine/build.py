@@ -68,7 +68,7 @@ def test_liveness(cands):
     alive = []
     done = 0
     with ThreadPoolExecutor(max_workers=C.THREADS_TEST) as ex:
-        futs = {ex.submit(is_alive, c.url): c for c in cands}
+        futs = {ex.submit(is_alive, c.url, c.headers): c for c in cands}
         for fut in futs:
             pass
         from concurrent.futures import as_completed

@@ -25,11 +25,15 @@ def _looks_binary(chunk):
     return not any(w in low for w in ERROR_WORDS)
 
 
-def _fetch_head(url, timeout):
-    """(status, content_type, ilk_metin, ham_chunk) döndür ya da None."""
+def _fetch_head(url, timeout, extra=None):
+    """(status, content_type, ilk_metin, ham_chunk) döndür ya da None.
+    extra: kanalın kendi başlıkları (User-Agent/Referer/Origin)."""
     try:
+        hdrs = {"Range": "bytes=0-4095"}
+        if extra:
+            hdrs.update(extra)
         with PLAYER.get(url, timeout=timeout, stream=True, allow_redirects=True,
-                        headers={"Range": "bytes=0-4095"}) as r:
+                        headers=hdrs) as r:
             ct = r.headers.get("Content-Type", "").lower()
             chunk = r.raw.read(4096)
             return r.status_code, ct, chunk.decode("utf-8", "ignore"), chunk
@@ -37,8 +41,8 @@ def _fetch_head(url, timeout):
         return None
 
 
-def _test_once(url, timeout):
-    head = _fetch_head(url, timeout)
+def _test_once(url, timeout, extra=None):
+    head = _fetch_head(url, timeout, extra)
     if not head:
         return False
     status, ct, text, chunk = head
@@ -59,7 +63,7 @@ def _test_once(url, timeout):
         if not target:
             return False
         # alt manifest ise bir kademe daha in
-        sub = _fetch_head(target, timeout)
+        sub = _fetch_head(target, timeout, extra)
         if not sub:
             return False
         s2, ct2, t2, chunk2 = sub
@@ -74,7 +78,7 @@ def _test_once(url, timeout):
                     break
             if not seg:
                 return False
-            final = _fetch_head(seg, timeout)
+            final = _fetch_head(seg, timeout, extra)
             return bool(final and final[0] in (200, 206) and _looks_binary(final[3]))
         # doğrudan parça geldiyse
         return _looks_binary(chunk2)
@@ -88,11 +92,11 @@ def _test_once(url, timeout):
     return _looks_binary(chunk)
 
 
-def is_alive(url, timeout=None):
+def is_alive(url, headers=None, timeout=None):
     timeout = timeout or C.TEST_TIMEOUT
     if not re.match(r"https?://", url or "", re.I):
         return False
     for _ in range(C.TEST_RETRY + 1):
-        if _test_once(url, timeout):
+        if _test_once(url, timeout, headers):
             return True
     return False

@@ -1,60 +1,161 @@
 # -*- coding: utf-8 -*-
-"""M3U metnini kanal nesnelerine çevirir ve kanalları tekrar M3U'ya yazar."""
+"""
+M3U metnini kanal nesnelerine çevirir ve kanalları tekrar M3U'ya yazar.
+
+ÖNEMLİ: Yayın başlıklarını (User-Agent / Referer / Origin) kaynak listedeki her
+biçimden çıkarır:
+  - #EXTVLCOPT:http-user-agent= / http-referrer= / http-origin=
+  - #EXTHTTP:{"User-Agent":"...","Referer":"...","Origin":"..."}
+  - #KODIPROP:inputstream.adaptive.stream_headers=User-Agent=...&Referer=...
+  - URL sonundaki  |User-Agent=...&Referer=...&Origin=...  eki
+Sonra çıktı listesine (tr.m3u) bunları TEMİZ #EXTVLCOPT satırları olarak yazar,
+böylece oynatıcı (ve bizim uygulama) yayını doğru başlıklarla açar.
+"""
+import json
 import re
 
 ATTR_RE = re.compile(r'([\w-]+)="([^"]*)"')
 
 
 class Channel:
-    __slots__ = ("name", "url", "logo", "group", "tvg_id", "extra", "source", "alive")
+    __slots__ = ("name", "url", "logo", "group", "tvg_id", "extra", "headers",
+                 "source", "alive")
 
-    def __init__(self, name, url, logo="", group="", tvg_id="", extra=None, source=""):
+    def __init__(self, name, url, logo="", group="", tvg_id="", extra=None,
+                 headers=None, source=""):
         self.name = name
         self.url = url
         self.logo = logo
         self.group = group or ""
         self.tvg_id = tvg_id
-        self.extra = extra or []      # #EXTVLCOPT / #KODIPROP gibi satırlar
-        self.source = source          # hangi kaynaktan geldi
-        self.alive = None             # True / False / None (test edilmedi)
+        self.extra = extra or []        # başlık OLMAYAN ek satırlar (DRM vb.)
+        self.headers = headers or {}    # User-Agent / Referer / Origin ...
+        self.source = source
+        self.alive = None
 
     def to_m3u(self):
         attrs = f'tvg-id="{self.tvg_id}" tvg-logo="{self.logo}" group-title="{self.group}"'
         out = [f"#EXTINF:-1 {attrs},{self.name}"]
-        out.extend(self.extra)
+        # Başlıkları temiz EXTVLCOPT olarak yaz (her oynatıcı okur)
+        ua = _get(self.headers, "user-agent")
+        ref = _get(self.headers, "referer") or _get(self.headers, "referrer")
+        org = _get(self.headers, "origin")
+        if ua:
+            out.append(f"#EXTVLCOPT:http-user-agent={ua}")
+        if ref:
+            out.append(f"#EXTVLCOPT:http-referrer={ref}")
+        if org:
+            out.append(f"#EXTVLCOPT:http-origin={org}")
+        # Başlık dışındaki diğer özel satırlar (varsa) aynen
+        for e in self.extra:
+            out.append(e)
         out.append(self.url)
         return "\n".join(out)
 
 
+def _get(d, key):
+    for k, v in d.items():
+        if k.lower() == key:
+            return v
+    return None
+
+
+def _add_header(hdrs, k, v):
+    k = (k or "").strip()
+    v = (v or "").strip()
+    if not k or not v:
+        return
+    lk = k.lower()
+    if lk in ("user-agent", "useragent"):
+        hdrs["User-Agent"] = v
+    elif lk in ("referer", "referrer"):
+        hdrs["Referer"] = v
+    elif lk == "origin":
+        hdrs["Origin"] = v
+    else:
+        hdrs[k] = v
+
+
+def _parse_header_blob(hdrs, blob):
+    # "User-Agent=..&Referer=.." ya da "User-Agent: ..|Referer: .."
+    for part in re.split(r"[&|]", blob):
+        m = re.search(r"[=:]", part)
+        if m:
+            _add_header(hdrs, part[:m.start()], part[m.start() + 1:])
+
+
 def parse(text, source=""):
-    """M3U metnini Channel listesine çevir."""
-    chans, cur = [], None
+    """M3U metnini Channel listesine çevir (başlıklar dahil)."""
+    chans = []
+    name = logo = group = tvg_id = None
+    extra = []
+    headers = {}
+
+    def reset():
+        nonlocal name, logo, group, tvg_id, extra, headers
+        name = logo = group = tvg_id = None
+        extra = []
+        headers = {}
+
     for raw in (text or "").splitlines():
         line = raw.strip().lstrip("﻿")
         if not line:
             continue
         up = line.upper()
         if up.startswith("#EXTINF"):
-            head, _, name = line.partition(",")
+            head, _, nm = line.partition(",")
             attrs = dict(ATTR_RE.findall(head))
-            cur = Channel(
-                name=(name.strip() or attrs.get("tvg-name", "") or "Adsız"),
-                url="", logo=attrs.get("tvg-logo", ""),
-                group=attrs.get("group-title", ""), tvg_id=attrs.get("tvg-id", ""),
-                source=source)
-        elif up.startswith("#EXTGRP:") and cur:
-            cur.group = line.split(":", 1)[1].strip() or cur.group
-        elif up.startswith(("#EXTVLCOPT", "#KODIPROP", "#EXTHTTP")) and cur:
-            cur.extra.append(line)
+            name = nm.strip() or attrs.get("tvg-name", "") or "Adsız"
+            logo = attrs.get("tvg-logo", "")
+            group = attrs.get("group-title", "")
+            tvg_id = attrs.get("tvg-id", "")
+        elif up.startswith("#EXTGRP:"):
+            group = line.split(":", 1)[1].strip() or group
+        elif up.startswith("#EXTVLCOPT:"):
+            body = line.split(":", 1)[1]
+            eq = body.find("=")
+            if eq > 0:
+                key = body[:eq].lower()
+                val = body[eq + 1:]
+                if "user-agent" in key:
+                    _add_header(headers, "User-Agent", val)
+                elif "referrer" in key or "referer" in key:
+                    _add_header(headers, "Referer", val)
+                elif "origin" in key:
+                    _add_header(headers, "Origin", val)
+                else:
+                    extra.append(line)
+        elif up.startswith("#EXTHTTP:"):
+            try:
+                for k, v in json.loads(line.split(":", 1)[1]).items():
+                    _add_header(headers, k, str(v))
+            except Exception:
+                pass
+        elif up.startswith("#KODIPROP:"):
+            body = line.split(":", 1)[1]
+            low = body.lower()
+            if "stream_headers" in low or "manifest_headers" in low:
+                eq = body.find("=")
+                if eq > 0:
+                    _parse_header_blob(headers, body[eq + 1:])
+            else:
+                extra.append(line)  # DRM vb. korunur
         elif line.startswith("#"):
             continue
         else:
-            if cur is None:
-                cur = Channel(name=line.rsplit("/", 1)[-1][:60], url="", source=source)
-            cur.url = line
-            if cur.url:
-                chans.append(cur)
-            cur = None
+            # URL satırı: | ekindeki başlıkları çıkar, URL'yi temizle
+            url = line
+            pipe = url.find("|")
+            if pipe > 0:
+                _parse_header_blob(headers, url[pipe + 1:])
+                url = url[:pipe]
+            if name is None:
+                name = url.rsplit("/", 1)[-1][:60]
+            chans.append(Channel(
+                name=name, url=url, logo=logo or "", group=group or "",
+                tvg_id=tvg_id or "", extra=list(extra),
+                headers=dict(headers), source=source))
+            reset()
     return chans
 
 
