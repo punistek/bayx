@@ -30,6 +30,55 @@ def is_banned(ch):
     return False
 
 
+def is_junk_name(name):
+    """SVG logo kodu / data URI / URL gibi kanal adı olmayan çöpü yakala."""
+    if not name:
+        return True
+    if C.JUNK_NAME_RE.search(name):
+        return True
+    letters = sum(c.isalpha() for c in name)
+    if len(name) >= 8 and letters / max(1, len(name)) < C.MIN_LETTER_RATIO:
+        return True
+    return False
+
+
+_URL_SKIP = {"index", "playlist", "live", "stream", "streams", "hls", "chunklist",
+             "master", "tracks", "manifest", "mono", "video", "out", "ts", "m3u8",
+             "m3u", "play", "channel", "ch", "tv", "get", "api", "cdn", "edge"}
+
+
+def name_from_url(url):
+    """Yayın adresinden okunabilir bir kanal adı türet (isim çöpse yedek plan)."""
+    try:
+        from urllib.parse import urlparse
+        p = urlparse(url)
+        parts = [seg for seg in p.path.split("/") if seg]
+        for seg in reversed(parts):
+            base = re.sub(r"\.(m3u8?|ts|mp4|php)$", "", seg, flags=re.I)
+            base = re.sub(r"[_\-+.]", " ", base)
+            base = re.sub(r"\b\d{2,}\b", " ", base)          # uzun sayıları at
+            words = [w for w in base.split() if w and fold(w) not in _URL_SKIP]
+            cand = " ".join(words).strip()
+            if len(re.sub(r"[^a-zçğıöşü]", "", cand, flags=re.I)) >= 3:
+                return cand.upper()[:C.MAX_NAME_LEN]
+        host = (p.hostname or "").split(".")
+        host = [h for h in host if h not in ("www", "com", "net", "tv", "org", "live")]
+        if host:
+            return host[0].upper()[:C.MAX_NAME_LEN]
+    except Exception:
+        pass
+    return ""
+
+
+def recover_name(ch):
+    """İsim çöpse: önce tvg-id, sonra adresten türet. Bulamazsan '' döner."""
+    if ch.tvg_id and not is_junk_name(ch.tvg_id):
+        c = clean_name(ch.tvg_id)
+        if c and len(c) >= 2 and not is_junk_name(c):
+            return c[:C.MAX_NAME_LEN]
+    return name_from_url(ch.url)
+
+
 def clean_name(name):
     """Addan kalite/site/emoji takılarını söküp düzgün biçime getir."""
     original = name
@@ -91,10 +140,30 @@ def refine(channels):
             continue
         if is_banned(ch):
             continue
-        ch.name = clean_name(ch.name)
-        if not ch.name or len(ch.name) < 2:
+        # İsim çöpse (SVG/data/URL) kanalı ATMA — çalışıyor olabilir, adını kurtar.
+        if is_junk_name(ch.name):
+            ch.name = recover_name(ch)
+        else:
+            ch.name = clean_name(ch.name)
+        # Hâlâ kullanılabilir bir isim yoksa ancak o zaman at.
+        if (not ch.name or len(ch.name) < 2 or len(ch.name) > C.MAX_NAME_LEN
+                or is_junk_name(ch.name)):
             continue
         ch.group = assign_group(ch)
+        out.append(ch)
+    return out
+
+
+def cap_by_name(channels, max_per=None):
+    """Aynı kanaldan en fazla N kopya tut (yedek için), gerisini at. Sırayı korur."""
+    max_per = max_per or C.MAX_COPY_PER_CHANNEL
+    counts, out = {}, []
+    for ch in channels:
+        k = norm_name_key(ch.name) + "|" + ch.group
+        n = counts.get(k, 0)
+        if n >= max_per:
+            continue
+        counts[k] = n + 1
         out.append(ch)
     return out
 
