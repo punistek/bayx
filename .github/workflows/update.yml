@@ -1,0 +1,44 @@
+name: Canlı Liste Güncelle
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'   # 6 saatte bir
+  workflow_dispatch:          # elle "Run workflow" butonu
+
+# Aynı anda ikinci çalışma başlarsa eskisini iptal et (push çakışmasını önler)
+concurrency:
+  group: liste-guncelle
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  guncelle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Depoyu çek
+        uses: actions/checkout@v4
+
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Kütüphaneleri yükle
+        run: pip install -r requirements.txt
+
+      - name: Listeyi güncelle
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python update_list.py
+
+      - name: Değişiklikleri kaydet
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tr.m3u RAPOR.md
+          git commit -m "Canlı liste güncellendi ($(date -u +'%d-%m-%Y %H:%M') UTC)" || echo "Değişiklik yok"
+          git pull --no-rebase --strategy-option=ours --no-edit || true
+          git push
