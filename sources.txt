@@ -24,8 +24,6 @@ https://github.com/kodlama155-ctrl/tv/blob/main/all.m3u
 https://raw.githubusercontent.com/kodlama155-ctrl/tv/main/tr.m3u
 https://github.com/iptv-turk-tr/iptv/blob/main/list.m3u
 https://github.com/iptv-turk-tr/iptv/blob/main/playlists/ulusal.m3u
-https://uycyyuuzyh.turknet.ercdn.net/nphindgytw/nowtv/nowtv.m3u8
-https://github.com/GithubSMK/TV-lists/blob/main/TR.m3u8
 https://github.com/arslanavdo355-sys/Benim-iptv/blob/main/tr-de-ku.m3u
 https://github.com/alpayaydemir-ui/tv-kanal-listesi/blob/main/turkiye-ucretsiz.m3u
 https://github.com/YosemiteSam6/turkiye-iptv-m3u-m3u8/blob/main/kanallar.m3u
