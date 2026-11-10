@@ -1,0 +1,5 @@
+# Buraya elle bilinen m3u kaynakları ekleyebilirsin — her satıra bir URL.
+# Satır başına # koyarsan o satır yoksayılır. Bot bunları her zaman dener.
+# Örnek:
+# https://raw.githubusercontent.com/kullanici/depo/main/liste.m3u
+https://raw.githubusercontent.com/iptv-org/iptv/master/streams/tr.m3u
