@@ -1,0 +1,41 @@
+name: Türkiye Doğrulaması (isteğe bağlı)
+
+# Türkiye'deki bir bilgisayar/sunucuda GitHub self-hosted runner kurulursa çalışır.
+# Runner kurulumu: Depo → Settings → Actions → Runners → New self-hosted runner,
+# etiket olarak "tr" ekle. Sonra aşağıdaki schedule satırlarının başındaki # işaretini kaldır.
+#
+# Ne yapar: GitHub sunucusundan "engelli" (403/451) görünen yayınları Türkiye'den test eder.
+# Liste yayınlamaz; yalnızca state/urls.json hafızasına "Türkiye'den sağlam" bilgisini yazar.
+# Bir sonraki ana güncelleme bu yayınları (GEO_GRACE_HOURS içinde) listede tutar.
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '47 2,8,14,20 * * *'
+
+concurrency:
+  group: liste-guncelle
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  dogrula:
+    runs-on: [self-hosted, tr]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -r requirements.txt
+      - name: Türkiye'den test
+        env:
+          PROBE_REGION: tr
+        run: python update_list.py --test-only --state-only --no-deep
+      - name: Hafızayı kaydet
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add state/
+          git diff --cached --quiet && exit 0
+          git commit -q -m "Türkiye doğrulaması ($(date -u +'%d-%m-%Y %H:%M') UTC)"
+          git pull -q --rebase -X theirs && git push -q

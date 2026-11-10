@@ -2,13 +2,27 @@ name: Canlı Liste Güncelle
 
 on:
   schedule:
-    - cron: '0 */6 * * *'   # 6 saatte bir
-  workflow_dispatch:          # elle "Run workflow" butonu
+    - cron: '17 */6 * * *'        # 6 saatte bir (dakika 17: GitHub'ın yoğun :00 anından kaçınır)
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Çalışma modu'
+        type: choice
+        options: [tam, arama-yok, sadece-test]
+        default: tam
+      fast:
+        description: 'Hızlı (FFprobe ve donma testi kapalı)'
+        type: boolean
+        default: false
+      force:
+        description: 'Korumayı aş (kanal sayısı çok düşse bile yayınla)'
+        type: boolean
+        default: false
 
-# Aynı anda ikinci çalışma başlarsa eskisini iptal et (push çakışmasını önler)
+# Çalışmalar sıraya girer; yarıda kesilip hafızayı bozmaz.
 concurrency:
   group: liste-guncelle
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -16,7 +30,7 @@ permissions:
 jobs:
   guncelle:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Depoyu çek
         uses: actions/checkout@v4
@@ -24,21 +38,53 @@ jobs:
       - name: Python kur
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
+          cache: pip
 
-      - name: Kütüphaneleri yükle
-        run: pip install -r requirements.txt
+      - name: Kütüphaneler + FFmpeg
+        run: |
+          pip install -r requirements.txt
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+          ffprobe -version | head -1
+
+      - name: Motor testleri (hata varsa liste güncellenmez)
+        run: python -m pytest -q tests
 
       - name: Listeyi güncelle
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python update_list.py
+          EPG_URLS: ${{ vars.EPG_URLS }}
+        run: |
+          ARGS=""
+          case "${{ inputs.mode }}" in
+            arama-yok)   ARGS="--no-search" ;;
+            sadece-test) ARGS="--test-only" ;;
+          esac
+          [ "${{ inputs.fast }}" = "true" ] && ARGS="$ARGS --fast"
+          [ "${{ inputs.force }}" = "true" ] && ARGS="$ARGS --force"
+          python update_list.py $ARGS 2>&1 | tee run.log
+
+      - name: Raporu özet sayfasına ekle
+        if: always()
+        run: '[ -f RAPOR.md ] && cat RAPOR.md >> "$GITHUB_STEP_SUMMARY" || true'
 
       - name: Değişiklikleri kaydet
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add tr.m3u RAPOR.md
-          git commit -m "Canlı liste güncellendi ($(date -u +'%d-%m-%Y %H:%M') UTC)" || echo "Değişiklik yok"
-          git pull --no-rebase --strategy-option=ours --no-edit || true
-          git push
+          git add tr.m3u channels.json health.json RAPOR.md state/
+          if git diff --cached --quiet; then echo "Değişiklik yok"; exit 0; fi
+          git commit -q -m "Canlı liste güncellendi ($(date -u +'%d-%m-%Y %H:%M') UTC)"
+          for i in 1 2 3; do
+            git pull -q --rebase -X theirs && git push -q && exit 0
+            sleep $((i * 5))
+          done
+          echo "Push başarısız"; exit 1
+
+      - name: Günlük dosyası
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calisma-gunlugu
+          path: run.log
+          retention-days: 7
