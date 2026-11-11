@@ -99,3 +99,25 @@ def test_top_repos_skips_own_and_radio(monkeypatch):
             "https://raw.githubusercontent.com/zero/list/main/a.m3u": {"alive": 0},
         }
     assert sources.top_repos(S(), 5) == [("good", "tv"), ("ok", "list")]
+
+
+def test_prioritize_gives_every_channel_a_share(monkeypatch):
+    from engine import build
+    from engine.health import SourceState, UrlState
+    monkeypatch.setattr(C, "PER_CHANNEL_TEST", 3)
+
+    class Reg:
+        def is_known(self, cid):
+            return cid == "trt1"
+
+    cands = []
+    for i in range(50):                      # popüler kanalın 50 kopya adresi
+        c = Channel("TRT 1", f"https://a.test/trt1/{i}.m3u8"); c.cid = "trt1"; cands.append(c)
+    for n in ["Yerel A", "Yerel B", "Yerel C"]:
+        c = Channel(n, f"https://b.test/{n}.m3u8"); c.cid = ""; cands.append(c)
+    out = build.prioritize(cands, Reg(), UrlState("/nonexistent/u.json"),
+                           SourceState("/nonexistent/s.json"), 8)
+    names = [c.name for c in out]
+    assert len(out) == 8
+    assert {"Yerel A", "Yerel B", "Yerel C"} <= set(names)   # eskiden hepsi dışarıda kalırdı
+    assert names.count("TRT 1") == 5

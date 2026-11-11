@@ -43,7 +43,8 @@ THREADS_FETCH  = _env_int("THREADS_FETCH", 12)    # kaynak indirme eş zaman
 THREADS_DEEP   = _env_int("THREADS_DEEP", 8)      # ffprobe eş zaman
 HTTP_TIMEOUT   = 12        # kaynak (m3u) indirme zaman aşımı (sn)
 TEST_TIMEOUT   = 8         # tek istek zaman aşımı (sn)
-MAX_TEST       = _env_int("MAX_TEST", 6000)       # bir çalışmada en fazla kaç adres test edilsin
+MAX_TEST       = _env_int("MAX_TEST", 8000)       # bir çalışmada en fazla kaç adres test edilsin
+PER_CHANNEL_TEST = _env_int("PER_CHANNEL_TEST", 14) # bütçe dar ise kanal başına önce en iyi N aday
 MAX_SOURCE_BYTES = 15 * 1024 * 1024               # 15 MB'tan büyük m3u indirilmez
 
 # ================================================================= yayın testi
@@ -149,7 +150,7 @@ CURATED_SOURCES = [
 ]
 
 # JSON biçimli açık kanal veritabanları (m3u değil; extra_sources.py okur).
-FAMELACK_TR = "https://raw.githubusercontent.com/famelack/famelack-data/main/tv/compressed/countries/tr.json"
+FAMELACK_TR = "https://raw.githubusercontent.com/famelack/famelack-data/main/tv/countries/tr.json"
 
 # Kanalların KENDİ resmî canlı yayın sayfalarından güncel adres çözümü (official.py).
 OFFICIAL_FILE = "official_sources.json"

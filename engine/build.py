@@ -184,7 +184,14 @@ def gather(reg, opts, st, src_state, url_state, armor_urls):
 
 
 def prioritize(cands, reg, url_state, src_state, limit):
-    """Sınırdan fazlaysa en değerli adayları seç (bilinen kanal, verimli kaynak, iyi geçmiş)."""
+    """Sınırdan fazlaysa en değerli adayları seç — ama HER KANALA ADİL PAY vererek.
+
+    Eskiden yalnız puana göre sıralanıyordu: TRT 1 gibi bilinen kanalların yüzlerce
+    kopya adresi bütün test bütçesini yiyordu (kanala zaten en fazla 6 kaynak yazılır),
+    az bilinen kanallar hiç test edilmiyordu. Şimdi:
+      1. tur: her kanaldan en iyi PER_CHANNEL_TEST adayı (kanal sırası da puanla)
+      2. tur: kalan bütçe yine puan sırasıyla doldurulur
+    """
     if len(cands) <= limit:
         return cands
 
@@ -193,10 +200,25 @@ def prioritize(cands, reg, url_state, src_state, limit):
         return ((3 if reg.is_known(c.cid) else 0)
                 + 2 * src_state.quality(c.source)
                 + (rec.get("score", 40) / 25.0)
-                + 0.2 * min(clean.tr_score(c), 5))
-    cands = sorted(cands, key=k, reverse=True)
-    log.info("Aday sınırı: en iyi %d / %d test edilecek", limit, len(cands))
-    return cands[:limit]
+                + 0.2 * min(clean.tr_score(c), 5)
+                + (1.5 if (c.source or "").startswith("official:") else 0))
+    ranked = sorted(cands, key=k, reverse=True)
+    per = max(1, C.PER_CHANNEL_TEST)
+    taken, counts, rest = [], {}, []
+    for c in ranked:
+        key = c.cid or clean.fold(c.name)
+        if counts.get(key, 0) < per:
+            counts[key] = counts.get(key, 0) + 1
+            taken.append(c)
+        else:
+            rest.append(c)
+    if len(taken) > limit:
+        taken = taken[:limit]
+    else:
+        taken += rest[:limit - len(taken)]
+    log.info("Aday sınırı: %d / %d test edilecek (%d kanal, kanal başına önce en iyi %d)",
+             len(taken), len(cands), len(counts), per)
+    return taken
 
 
 # ============================================================== test
