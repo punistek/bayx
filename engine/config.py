@@ -43,6 +43,13 @@ THREADS_FETCH  = _env_int("THREADS_FETCH", 12)    # kaynak indirme eş zaman
 THREADS_DEEP   = _env_int("THREADS_DEEP", 8)      # ffprobe eş zaman
 HTTP_TIMEOUT   = 12        # kaynak (m3u) indirme zaman aşımı (sn)
 TEST_TIMEOUT   = 8         # tek istek zaman aşımı (sn)
+# ZAMAN BÜTÇESİ: GitHub işi timeout-minutes'ta (update.yml) kesilirse HİÇBİR ŞEY kaydedilmez.
+# Bu yüzden motor kendi süresini tutar: bütçe dolunca kalan testleri bırakır, test edilenlerle
+# listeyi yazar. Kurulum + kaydetme ~3 dk sürer → iş sınırından en az 8-10 dk az olmalı.
+RUN_BUDGET_MIN    = _env_int("RUN_BUDGET_MIN", 48)     # tüm çalışma (dk)
+SEARCH_BUDGET_MIN = _env_int("SEARCH_BUDGET_MIN", 8)   # GitHub araması + depo listeleme (dk)
+DEEP_RESERVE_MIN  = _env_int("DEEP_RESERVE_MIN", 6)    # derin test (FFprobe) için ayrılan (dk)
+REQUEST_MAX_SEC   = 30      # tek bir API/kaynak isteğinin TOPLAM süresi (timeout okuma başınadır)
 MAX_TEST       = _env_int("MAX_TEST", 8000)       # bir çalışmada en fazla kaç adres test edilsin
 PER_CHANNEL_TEST = _env_int("PER_CHANNEL_TEST", 14) # bütçe dar ise kanal başına önce en iyi N aday
 MAX_SOURCE_BYTES = 15 * 1024 * 1024               # 15 MB'tan büyük m3u indirilmez

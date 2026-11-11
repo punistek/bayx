@@ -19,9 +19,10 @@ import os
 import re
 import time
 import urllib.parse
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError as FutTimeout
 from datetime import datetime, timedelta, timezone
 
+from . import budget
 from . import config as C
 from .fetch import get_json, gh_headers
 
@@ -156,6 +157,15 @@ def expand(url):
 
 
 # ------------------------------------------------------------------ GitHub araması
+# Arama aşamasının bitmesi gereken an (collect_all ayarlar). Geçince arama durur,
+# o ana kadar bulunanlarla devam edilir.
+_SEARCH_END = float("inf")
+
+
+def _search_over():
+    return time.time() > _SEARCH_END
+
+
 def _since():
     return (datetime.now(timezone.utc) - timedelta(days=C.RECENT_DAYS)).strftime("%Y-%m-%d")
 
@@ -171,6 +181,9 @@ def gh_search_repos():
     queries = [f"{t} pushed:>={_since()}" for t in C.SEARCH_TERMS] + \
               [f"{t} pushed:>={_since()}" for t in C.TOPIC_SEARCH]
     for q in queries:
+        if _search_over():
+            log.warning("Arama süresi doldu → depo araması %d sorguda kesildi", queries.index(q))
+            break
         url = "https://api.github.com/search/repositories?" + urllib.parse.urlencode(
             {"q": q, "sort": "updated", "order": "desc", "per_page": 40})
         j = _search(url)
@@ -190,6 +203,9 @@ def gh_search_code():
         return []
     out = set()
     for term in C.CODE_SEARCH_TERMS:
+        if _search_over():
+            log.warning("Arama süresi doldu → kod araması kesildi")
+            break
         url = "https://api.github.com/search/code?" + urllib.parse.urlencode(
             {"q": term, "per_page": C.CODE_SEARCH_PER_PAGE})
         j = get_json(url, headers=gh_headers())
@@ -230,6 +246,8 @@ def gh_fork_repos(source_state):
     since = _since()
     out = {}
     for owner, repo in top_repos(source_state, C.FORK_TRACK_TOP):
+        if _search_over():
+            break
         url = (f"https://api.github.com/repos/{owner}/{repo}/forks?"
                + urllib.parse.urlencode({"sort": "newest", "per_page": C.FORK_TRACK_MAX}))
         j = get_json(url, headers=gh_headers())
@@ -272,6 +290,9 @@ def collect_all(search=True, source_state=None):
     add(C.CURATED_SOURCES, "curated")
 
     if search and C.SEARCH_ENABLED:
+        global _SEARCH_END
+        t_search = time.time()
+        _SEARCH_END = min(t_search + C.SEARCH_BUDGET_MIN * 60, budget.deadline() - 25 * 60)
         repos = gh_search_repos()
         forks = gh_fork_repos(source_state)
         if forks:
@@ -279,13 +300,28 @@ def collect_all(search=True, source_state=None):
             seen_r = {(o, r) for o, r, _ in repos}
             repos += [f for f in forks if (f[0], f[1]) not in seen_r]
         log.info("GitHub aramasında %d depo bulundu, dosyalar listeleniyor...", len(repos))
-        with ThreadPoolExecutor(max_workers=C.THREADS_FETCH) as ex:
-            for lst in ex.map(lambda t: repo_m3u_urls(*t, auto=True), repos):
-                add(lst, "auto")
+        # Kod aramasına da süre kalsın: depo listeleme aramanın en fazla ~%75'i.
+        list_end = t_search + (_SEARCH_END - t_search) * 0.75
+        ex = ThreadPoolExecutor(max_workers=C.THREADS_FETCH)
+        futs = [ex.submit(repo_m3u_urls, *t, auto=True) for t in repos]
+        done_n = 0
+        try:
+            for f in as_completed(futs, timeout=max(1.0, list_end - time.time())):
+                try:
+                    add(f.result(), "auto")
+                except Exception as e:   # tek depo tüm aramayı durdurmasın
+                    log.debug("depo listeleme hata: %s", e)
+                done_n += 1
+        except FutTimeout:
+            log.warning("Depo listeleme süresi doldu: %d/%d depo listelendi, kalanı bu tur atlandı",
+                        done_n, len(repos))
+        ex.shutdown(wait=False, cancel_futures=True)
+        log.info("Depo listeleme: %d depo · %.0f sn", done_n, time.time() - t_search)
         code = gh_search_code()
         if code:
             log.info("Kod aramasından %d dosya", len(code))
         add(code, "auto")
+        log.info("Arama toplam %.0f sn", time.time() - t_search)
 
     out = []
     skipped = 0

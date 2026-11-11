@@ -6,6 +6,7 @@ her zaman doğrulanarak indirilir. Yayın testinde sertifikası bozuk sunucular 
 'güvensiz' oturumla denenir ve puan cezası alır (uygulama bu yayını açamayabilir).
 """
 import logging
+import json
 import time
 
 import requests
@@ -26,8 +27,12 @@ PLAYER_UA = "ExoPlayerLib/2.19.1 (Linux; Android 13) PuuStream"
 
 def make_session(ua=BROWSER_UA, verify=True, retries=0):
     s = requests.Session()
+    # respect_retry_after_header=False: GitHub/jsDelivr 429'da "Retry-After: 1800" gibi
+    # dakikalarca bekleme isteyebiliyor; urllib3 bunu SESSİZCE uyuyarak uyguluyordu
+    # (aramanın 45 dk sürmesinin sebebi). Artık en fazla birkaç sn bekleyip geçiyoruz.
     retry = Retry(total=retries, backoff_factor=0.6, status_forcelist=(429, 502, 503, 504),
-                  allowed_methods=("GET", "HEAD")) if retries else 0
+                  allowed_methods=("GET", "HEAD"), respect_retry_after_header=False,
+                  backoff_max=8) if retries else 0
     ad = HTTPAdapter(pool_connections=64, pool_maxsize=128, max_retries=retry)
     s.mount("http://", ad)
     s.mount("https://", ad)
@@ -51,10 +56,14 @@ def get_text(url, timeout=None, session=None, max_bytes=None, headers=None):
             if r.status_code != 200:
                 return None
             buf = bytearray()
+            t_end = time.time() + C.REQUEST_MAX_SEC
             for chunk in r.iter_content(65536):
                 buf.extend(chunk)
                 if len(buf) > max_bytes:
                     log.warning("Çok büyük, atlandı: %s", url)
+                    return None
+                if time.time() > t_end:   # damla damla akan sunucu işi kilitlemesin
+                    log.warning("Çok yavaş (%d sn), atlandı: %s", C.REQUEST_MAX_SEC, url)
                     return None
             enc = r.encoding or "utf-8"
             try:
@@ -66,10 +75,22 @@ def get_text(url, timeout=None, session=None, max_bytes=None, headers=None):
 
 
 def get_json(url, timeout=None, headers=None):
+    t0 = time.time()
     try:
-        r = SESSION.get(url, timeout=timeout or C.HTTP_TIMEOUT, headers=headers)
+        r = SESSION.get(url, timeout=timeout or C.HTTP_TIMEOUT, headers=headers, stream=True)
         if r.status_code == 200:
-            return r.json()
+            buf = bytearray()
+            t_end = t0 + C.REQUEST_MAX_SEC
+            for chunk in r.iter_content(65536):
+                buf.extend(chunk)
+                if time.time() > t_end or len(buf) > 64 * 1024 * 1024:
+                    log.warning("JSON çok yavaş/büyük, atlandı: %s", url)
+                    r.close()
+                    return None
+            return json.loads(buf.decode("utf-8", "replace"))
+        dt = time.time() - t0
+        if dt > 15:
+            log.warning("Yavaş cevap %.0f sn (%s): %s", dt, r.status_code, url)
         if r.status_code in (403, 429) and "api.github.com" in url:
             reset = r.headers.get("X-RateLimit-Reset")
             log.warning("GitHub API limiti (%s). Sıfırlanma: %s", r.status_code,

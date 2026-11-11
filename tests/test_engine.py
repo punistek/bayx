@@ -324,3 +324,26 @@ def test_guard_protects_memory(server, tmp_path, monkeypatch):
     assert (tmp_path / "tr.m3u").read_text(encoding="utf-8") == before_m3u
     assert (tmp_path / "state" / "urls.json").read_text(encoding="utf-8") == before_state
     assert "DURDURULDU" in (tmp_path / "RAPOR.md").read_text(encoding="utf-8")
+
+
+# ---------------------------------------------------------------- zaman bütçesi
+def test_pmap_stops_at_deadline():
+    """Süre dolunca başlamamış işler bırakılır; sonuçta yalnızca bitenler olur."""
+    import time
+    from engine.build import _pmap
+
+    def slow(x):
+        time.sleep(0.3)
+        return x
+
+    t0 = time.time()
+    out = _pmap(slow, list(range(40)), 4, "deneme", until=time.time() + 1.0)
+    assert time.time() - t0 < 4          # 40 iş * 0.3 sn / 4 = 3 sn sürerdi
+    assert 0 < len(out) < 40
+    assert all(out[i] == i for i in out)  # biten her iş doğru sonucu taşır
+
+
+def test_pmap_without_deadline_runs_all():
+    from engine.build import _pmap
+    out = _pmap(lambda x: x * 2, list(range(10)), 3, "deneme")
+    assert out == {i: i * 2 for i in range(10)}

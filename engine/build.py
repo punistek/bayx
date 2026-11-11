@@ -7,11 +7,12 @@ import logging
 import os
 import time
 from collections import Counter, defaultdict
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError as FutTimeout
 from dataclasses import dataclass, field
 
 from . import clean, extra_sources, guard, identity, liveness, official, output, parse, siblings, sources
 from . import site_providers
+from . import budget
 from . import config as C
 from .fetch import get_json, get_text
 from .health import SourceState, UrlState, geo_grace
@@ -222,15 +223,19 @@ def prioritize(cands, reg, url_state, src_state, limit):
 
 
 # ============================================================== test
-def _pmap(fn, items, threads, label):
+def _pmap(fn, items, threads, label, until=None):
+    """Paralel çalıştır. `until` (epoch sn) geçerse sıradaki işler başlatılmaz;
+    sonuç sözlüğünde yalnızca BİTEN işler olur (bitmeyenin anahtarı yoktur)."""
     out = {}
     if not items:
         return out
     done = 0
     t0 = time.time()
-    with ThreadPoolExecutor(max_workers=threads) as ex:
-        futs = {ex.submit(fn, it): i for i, it in enumerate(items)}
-        for f in as_completed(futs):
+    ex = ThreadPoolExecutor(max_workers=threads)
+    futs = {ex.submit(fn, it): i for i, it in enumerate(items)}
+    try:
+        wait_s = None if until is None else max(1.0, until - time.time())
+        for f in as_completed(futs, timeout=wait_s):
             i = futs[f]
             try:
                 out[i] = f.result()
@@ -240,20 +245,38 @@ def _pmap(fn, items, threads, label):
             done += 1
             if done % 250 == 0 or done == len(items):
                 log.info("  %s: %d/%d (%.0f sn)", label, done, len(items), time.time() - t0)
+    except FutTimeout:
+        log.warning("  %s: SÜRE DOLDU → %d/%d bitti, kalanı bu tur atlandı (%.0f sn)",
+                    label, done, len(items), time.time() - t0)
+    # Başlamamış işleri iptal et; sürenler kendi zaman aşımlarıyla kısa sürede biter.
+    ex.shutdown(wait=True, cancel_futures=True)
+    for f, i in futs.items():   # iptal anında bitmiş olanları da topla
+        if i not in out and f.done() and not f.cancelled():
+            try:
+                out[i] = f.result()
+            except Exception:
+                out[i] = None
     return out
 
 
 def test_all(chans, opts, st):
-    log.info("Hızlı test: %d adres, %d eş zaman", len(chans), C.THREADS_TEST)
-    res = _pmap(lambda c: liveness.probe(c.url, c.headers), chans, C.THREADS_TEST, "hızlı")
+    """Döndürür: (probes, tested) — tested: süre bitmeden test edilebilen sıra numaraları."""
+    # Derin test + kayıt için süre bırak.
+    reserve = (C.DEEP_RESERVE_MIN * 60 if opts.deep else 0) + 120
+    until = budget.deadline() - reserve
+    log.info("Hızlı test: %d adres, %d eş zaman · süre bütçesi %.0f dk",
+             len(chans), C.THREADS_TEST, max(0, until - time.time()) / 60)
+    res = _pmap(lambda c: liveness.probe(c.url, c.headers), chans, C.THREADS_TEST, "hızlı", until)
+    tested = set(res)
     probes = [res.get(i) or liveness.Probe(url=c.url, reason="internal") for i, c in enumerate(chans)]
-    st.tested = len(probes)
+    st.tested = len(tested)
 
     if opts.progress:
-        idx = [i for i, p in enumerate(probes) if p.status == "ok" and p.kind == "hls"]
+        idx = [i for i, p in enumerate(probes)
+               if i in tested and p.status == "ok" and p.kind == "hls"]
         log.info("İlerleme (donma) testi: %d HLS yayın", len(idx))
-        _pmap(lambda i: liveness.recheck(probes[i]), idx, C.THREADS_TEST, "ilerleme")
-    return probes
+        _pmap(lambda i: liveness.recheck(probes[i]), idx, C.THREADS_TEST, "ilerleme", until)
+    return probes, tested
 
 
 def deep_pass(chans, probes, url_state, st, opts):
@@ -271,9 +294,13 @@ def deep_pass(chans, probes, url_state, st, opts):
         idx.sort(key=lambda i: (probes[i].status == "ok", -probes[i].latency_ms), reverse=True)
         picks.extend(idx[:C.DEEP_PER_CHANNEL])
     picks = picks[:C.DEEP_MAX]
+    until = budget.deadline() - 120     # kayıt/yazma için 2 dk bırak
+    if until - time.time() < 60:
+        log.warning("Derin test için süre kalmadı → atlandı")
+        return
     log.info("Derin test (FFprobe): %d adres", len(picks))
-    _pmap(lambda i: liveness.deep_probe(probes[i]), picks, C.THREADS_DEEP, "derin")
-    st.deep_tested = len(picks)
+    done = _pmap(lambda i: liveness.deep_probe(probes[i]), picks, C.THREADS_DEEP, "derin", until)
+    st.deep_tested = len(done)
 
 
 # ============================================================== birleştir
@@ -352,6 +379,7 @@ def assemble(reg, chans, probes, recs):
 # ============================================================== ana akış
 def run(opts=None):
     opts = opts or RunOptions()
+    budget.start()
     st = RunStats()
     url_state, src_state = UrlState(), SourceState()
     reg = identity.load_registry(get_json if opts.fetch_sources else None)
@@ -370,7 +398,18 @@ def run(opts=None):
     active = prioritize(active, reg, url_state, src_state, opts.max_test)
     to_test = armor + active
 
-    probes = test_all(to_test, opts, st)
+    all_urls = {c.url for c in to_test}
+    cut_sources = set()   # adreslerinden en az biri süre yüzünden test edilemeyen m3u kaynakları
+    probes, tested = test_all(to_test, opts, st)
+    if len(tested) < len(to_test):
+        cut_sources = {c.source for i, c in enumerate(to_test) if i not in tested}
+        # Süre dolduğu için test edilemeyenler "ölü" sayılmasın: hafızaya yazılmaz,
+        # bu turun listesine girmez; bir sonraki çalışmada (öncelikli olarak) test edilir.
+        log.warning("Süre bütçesi: %d/%d adres test edildi, %d adres sonraki tura kaldı",
+                    len(tested), len(to_test), len(to_test) - len(tested))
+        keep = sorted(tested)
+        to_test = [to_test[i] for i in keep]
+        probes = [probes[i] for i in keep]
     deep_pass(to_test, probes, url_state, st, opts)
 
     recs = [url_state.record(c, p) for c, p in zip(to_test, probes)]
@@ -381,7 +420,9 @@ def run(opts=None):
 
     # kaynak verimi: her m3u kaynağı kaç sağlam adres verdi
     yield_ = Counter(c.source for c, p in zip(to_test, probes) if p.ok and not c.armored)
-    for url in {c.source for c in active}:
+    # Süre yüzünden yarım test edilen kaynağın verimi eksik çıkar → bu tur güncellenmez
+    # (yoksa "verimsiz" sanılıp haksız yere karantinaya girerdi).
+    for url in {c.source for c in active} - cut_sources:
         if url in src_state.data:
             src_state.yielded(url, yield_.get(url, 0))
     st.source_yield = dict(yield_.most_common(15))
@@ -391,7 +432,7 @@ def run(opts=None):
 
     fetch_args = (st.sources_ok, st.sources_total) if opts.fetch_sources else (None, None)
     st.publish, st.guard_reason = guard.check(healthy, *fetch_args)
-    st.pruned = url_state.prune({c.url for c in to_test})
+    st.pruned = url_state.prune(all_urls)
 
     if opts.dry_run:
         log.info("Deneme modu: dosyalar yazılmadı. Sağlam kanal: %d", healthy)
