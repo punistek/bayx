@@ -32,6 +32,13 @@ def is_banned(ch):
     return False
 
 
+def is_paid(name):
+    """Paralı platform kanalı mı (beIN, S Sport, Tivibu Spor, Exxen, Digiturk…)?
+    Bu kanalların izinsiz kopyaları listeye alınmaz. Uygulama aynı kuralı kullanır."""
+    t = " " + re.sub(r"[^a-z0-9+]+", " ", fold(name)) + " "
+    return bool(C.PAID_RE.search(t))
+
+
 _DIGITS_RE = re.compile(r"^\d+(\.(ts|m3u8|mp4|mkv))?$", re.I)
 
 
@@ -205,6 +212,9 @@ def refine(channels, stats=None):
             continue
         if is_banned(ch) or _BANNED_RE.search(getattr(ch, "src_group", "") or ""):
             stats["banned"] = stats.get("banned", 0) + 1
+            continue
+        if is_paid(ch.name):
+            stats["paid"] = stats.get("paid", 0) + 1
             continue
         # İsim çöpse (SVG/data/URL) kanalı ATMA — çalışıyor olabilir, adını kurtar.
         if is_junk_name(ch.name):

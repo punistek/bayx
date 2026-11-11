@@ -190,7 +190,8 @@ def gh_search_code():
         return []
     out = set()
     for term in C.CODE_SEARCH_TERMS:
-        url = "https://api.github.com/search/code?" + urllib.parse.urlencode({"q": term, "per_page": 30})
+        url = "https://api.github.com/search/code?" + urllib.parse.urlencode(
+            {"q": term, "per_page": C.CODE_SEARCH_PER_PAGE})
         j = get_json(url, headers=gh_headers())
         time.sleep(6.5)                  # kod araması: dakikada 10 istek
         for it in (j or {}).get("items", []):
@@ -201,6 +202,43 @@ def gh_search_code():
             # Commit'e sabitlenmiş adres yerine HEAD: dosya güncellendikçe yeni hali gelir
             out.add(f"https://raw.githubusercontent.com/{repo}/HEAD/{_q(path)}")
     return list(out)
+
+
+RAW_REPO_RE = re.compile(r"^https://raw\.githubusercontent\.com/([^/]+)/([^/]+)/", re.I)
+
+
+def top_repos(source_state, n):
+    """En çok sağlam kanal veren n depo (owner, repo) — kaynak hafızasından."""
+    if not source_state or n <= 0:
+        return []
+    score = {}
+    for url, r in (source_state.data or {}).items():
+        m = RAW_REPO_RE.match(url)
+        if not m:
+            continue
+        key = (m.group(1), m.group(2))
+        slug = f"{key[0]}/{key[1]}".lower()
+        if excluded(f"https://github.com/{slug}") or any(w in slug for w in ("radio", "radyo", "music")):
+            continue   # kendi çıktımız / radyo-müzik depoları
+        score[key] = score.get(key, 0) + int(r.get("alive") or 0)
+    ranked = sorted((k for k, v in score.items() if v > 0), key=lambda k: -score[k])
+    return ranked[:n]
+
+
+def gh_fork_repos(source_state):
+    """Verimli depoların son RECENT_DAYS günde güncellenen fork'ları."""
+    since = _since()
+    out = {}
+    for owner, repo in top_repos(source_state, C.FORK_TRACK_TOP):
+        url = (f"https://api.github.com/repos/{owner}/{repo}/forks?"
+               + urllib.parse.urlencode({"sort": "newest", "per_page": C.FORK_TRACK_MAX}))
+        j = get_json(url, headers=gh_headers())
+        for it in j if isinstance(j, list) else []:
+            if (it.get("pushed_at") or "")[:10] < since:
+                continue
+            out.setdefault(it["full_name"], (it["owner"]["login"], it["name"],
+                                             it.get("default_branch") or "main"))
+    return list(out.values())
 
 
 # ------------------------------------------------------------------ hepsi
@@ -235,6 +273,11 @@ def collect_all(search=True, source_state=None):
 
     if search and C.SEARCH_ENABLED:
         repos = gh_search_repos()
+        forks = gh_fork_repos(source_state)
+        if forks:
+            log.info("Verimli depoların güncel fork'ları: %d", len(forks))
+            seen_r = {(o, r) for o, r, _ in repos}
+            repos += [f for f in forks if (f[0], f[1]) not in seen_r]
         log.info("GitHub aramasında %d depo bulundu, dosyalar listeleniyor...", len(repos))
         with ThreadPoolExecutor(max_workers=C.THREADS_FETCH) as ex:
             for lst in ex.map(lambda t: repo_m3u_urls(*t, auto=True), repos):

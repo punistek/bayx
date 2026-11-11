@@ -15,6 +15,7 @@ import json
 import re
 
 ATTR_RE = re.compile(r'([\w-]+)="([^"]*)"')
+YEDEK_KEY_RE = re.compile(r"^(yedek|backup|alt)\d*$", re.I)
 
 
 class Channel:
@@ -115,12 +116,14 @@ def parse(text, source=""):
     name = logo = group = tvg_id = None
     extra = []
     headers = {}
+    backups = []   # #EXTINF içindeki Yedek="..", Yedek2=".." adresleri (OnurEroz biçimi)
 
     def reset():
-        nonlocal name, logo, group, tvg_id, extra, headers
+        nonlocal name, logo, group, tvg_id, extra, headers, backups
         name = logo = group = tvg_id = None
         extra = []
         headers = {}
+        backups = []
 
     for raw in (text or "").splitlines():
         line = raw.strip().lstrip("﻿")
@@ -134,6 +137,8 @@ def parse(text, source=""):
             logo = attrs.get("tvg-logo", "")
             group = attrs.get("group-title", "")
             tvg_id = attrs.get("tvg-id", "")
+            backups = [v.strip() for k, v in attrs.items()
+                       if YEDEK_KEY_RE.match(k) and v.strip().lower().startswith(("http://", "https://"))]
         elif up.startswith("#EXTGRP:"):
             group = line.split(":", 1)[1].strip() or group
         elif up.startswith("#EXTVLCOPT:"):
@@ -180,6 +185,13 @@ def parse(text, source=""):
                 name=name, url=url, logo=logo or "", group=group or "",
                 tvg_id=tvg_id or "", extra=list(extra),
                 headers=dict(headers), source=source))
+            # Yedek adresler: aynı kanalın ayrı adayları (aynı ad ve başlıklarla test edilir)
+            for b in backups:
+                if b != url:
+                    chans.append(Channel(
+                        name=name, url=b, logo=logo or "", group=group or "",
+                        tvg_id=tvg_id or "", extra=list(extra),
+                        headers=dict(headers), source=source))
             reset()
     return chans
 

@@ -1,0 +1,21 @@
+{
+  "_aciklama": "Kanalların KENDİ resmî canlı yayın sayfaları. Bot her turda sayfayı okur, sayfada herkese açık duran yayın adresini bulur ve sağlık testine sokar. host+path ya da pattern (regex) verilir; ikisi de yoksa sayfadaki ilk .m3u8 alınır. Bir kanal kapanırsa enabled:false yap. Yalnız herkese açık sayfalar; oturum/DRM/erişim kontrolü aşılmaz.",
+  "channels": [
+    {"name": "Show TV",   "page": "https://www.showtv.com.tr/canli-yayin",  "host": "ciner.daioncdn.net",     "path": "showtv",      "headers": {"Referer": "https://www.showtv.com.tr/"}},
+    {"name": "Habertürk", "page": "https://www.haberturk.com/canliyayin",   "host": "ciner.daioncdn.net",     "path": "haberturktv", "headers": {"Referer": "https://www.haberturk.com/"}},
+    {"name": "Kanal D",   "page": "https://www.kanald.com.tr/canli-yayin",  "host": "demiroren.daioncdn.net", "path": "kanald",      "headers": {"Referer": "https://www.kanald.com.tr/"}},
+    {"name": "Teve2",     "page": "https://www.teve2.com.tr/canli-yayin",   "host": "demiroren.daioncdn.net", "path": "teve2",       "headers": {"Referer": "https://www.teve2.com.tr/"}},
+    {"name": "CNN Türk",  "page": "https://www.cnnturk.com/canli-yayin",    "host": "live.duhnet.tv",         "path": "S2/HLS_LIVE/cnnturknp", "headers": {"Referer": "https://www.cnnturk.com/"}},
+    {"name": "TV8",       "page": "https://www.tv8.com.tr/canli-yayin",     "host": "tv8.daioncdn.net",       "path": "tv8",         "headers": {"Referer": "https://www.tv8.com.tr/"}},
+    {"name": "Kanal 7",   "page": "https://www.kanal7.com/canli-yayin",     "host": "kanal7.daioncdn.net",    "headers": {"Referer": "https://www.kanal7.com/"}},
+    {"name": "Halk TV",   "page": "https://halktv.com.tr/canli-yayin",      "host": "halktv.daioncdn.net",    "headers": {"Referer": "https://halktv.com.tr/"}},
+    {"name": "Star TV",   "page": "https://player-live.dygdigital.com/js/build.js", "host": "dogus.daioncdn.net", "path": "startv", "headers": {"Referer": "https://www.startv.com.tr/"}},
+    {"name": "NTV",       "page": "https://player-live.dygdigital.com/js/build.js", "host": "dogus.daioncdn.net", "path": "ntv",    "headers": {"Referer": "https://www.ntv.com.tr/"}},
+    {"name": "360",       "page": "https://www.tv360.com.tr/canli-yayin",   "host": "turkmedya-live.ercdn.net", "path": "tv360",     "headers": {"Referer": "https://www.tv360.com.tr/"}},
+    {"name": "TGRT Haber","page": "https://www.tgrthaber.com/canli-yayin",  "host": "canli.tgrthaber.com",    "headers": {"Referer": "https://www.tgrthaber.com/"}},
+    {"name": "Beyaz TV",  "page": "https://beyaztv.com.tr/canli-yayin",     "headers": {"Referer": "https://beyaztv.com.tr/"}},
+    {"name": "TV100",     "page": "https://www.tv100.com/canli-yayin",      "headers": {"Referer": "https://www.tv100.com/"}},
+    {"name": "Haber Global", "page": "https://haberglobal.com.tr/canli-yayin", "headers": {"Referer": "https://haberglobal.com.tr/"}},
+    {"name": "Bloomberg HT", "page": "https://www.bloomberght.com/tv",      "headers": {"Referer": "https://www.bloomberght.com/"}}
+  ]
+}

@@ -80,7 +80,22 @@ def build_channels_json(channels, st, healthy):
             "sources": sum(len(c["sources"]) for c in channels),
             "armored_channels": sum(1 for c in channels if c["armored"]),
         },
+        "rules": rules_json(),
         "channels": [_public_channel(c) for c in channels],
+    }
+
+
+def rules_json():
+    """Kategori + paralı kanal kuralları. Uygulama (tv_rules.dart) eklenti kanallarını
+    da AYNI kurallarla gruplar/süzer; kural burada değişince uygulama da değişir."""
+    return {
+        "group_order": C.GROUP_ORDER,
+        "default_group": C.DEFAULT_GROUP,
+        "yerel_group": C.G_YEREL,
+        "group_rules": [[g, list(keys)] for g, keys in C.GROUP_RULES],
+        "il_adlari": list(C.IL_ADLARI),
+        "plaka_re": C.PLAKA_RE.pattern,
+        "paid": list(C.PAID_PATTERNS),
     }
 
 
@@ -146,6 +161,8 @@ def build_report(channels, st, healthy, m3u_n, armor, reg):
          f"| Kaynak listesi | {st.sources_ok}/{st.sources_total} indirildi |",
          f"| Site çözücüleri (7 spor kaynağı) | {st.from_sites} aday (sağlık testine tabi) |",
          f"| Aday (hafızadan geri çağrılan) | {st.candidates} ({st.from_memory}) |",
+         f"| Resmî site çözücüleri · JSON veritabanı · kardeş sunucu | "
+         f"{getattr(st, 'from_official', 0)} · {getattr(st, 'from_extra', 0)} · {getattr(st, 'from_siblings', 0)} aday |",
          f"| Türk listesi sayılan kaynak | {st.tr_sources} |",
          f"| Yabancı olduğu için indirilmeyen dosya | {st.skipped_files} |",
          f"| Elenen | {', '.join(f'{k}: {v}' for k, v in st.filtered.items()) or '-'} |",

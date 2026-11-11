@@ -97,7 +97,17 @@ SEARCH_TERMS = [
 TOPIC_SEARCH = ["topic:iptv turkey", "topic:iptv turkiye", "topic:m3u turkey"]
 # GitHub kod araması (token gerekir) — taze .m3u dosyaları
 CODE_SEARCH_TERMS = ["trt1 extension:m3u", "trt1 extension:m3u8", "\"show tv\" extension:m3u",
-                     "atv extension:m3u", "trt spor extension:m3u"]
+                     "atv extension:m3u", "trt spor extension:m3u",
+                     "\"kanal d\" extension:m3u", "ntv extension:m3u8", "\"trt haber\" extension:m3u",
+                     "tv8 extension:m3u8", "\"halk tv\" extension:m3u", "daioncdn extension:m3u",
+                     "ercdn extension:m3u8"]
+CODE_SEARCH_PER_PAGE = 100     # GitHub en fazla 100 verir (eskiden 30)
+
+# Verimli depoların fork'ları: kaynakların çoğu birbirinin kopyası ama fork'larda
+# sık sık yeni/düzeltilmiş adres çıkıyor. En verimli N deponun yakın zamanda
+# güncellenen fork'ları da taranır.
+FORK_TRACK_TOP   = _env_int("FORK_TRACK_TOP", 6)
+FORK_TRACK_MAX   = _env_int("FORK_TRACK_MAX", 30)    # depo başına en fazla fork
 
 RECENT_DAYS   = 45
 MAX_REPOS     = _env_int("MAX_REPOS", 150)
@@ -132,6 +142,29 @@ SOURCE_QUARANTINE_H     = 72
 # Her zaman denenecek bilinen açık kaynaklar (sources.txt'e ek olarak).
 CURATED_SOURCES = [
     "https://raw.githubusercontent.com/iptv-org/iptv/master/streams/tr.m3u",
+    # OnurEroz Türkiye listeleri: her kanalda Yedek= / Yedek2= ile yedek adres taşır
+    # (parse.py bunları ayrı aday olarak okur).
+    "https://onureroz.com/indirmeler/turk/index.m3u",
+    "https://onureroz.com/indirmeler/turk/tv2.m3u",
+]
+
+# JSON biçimli açık kanal veritabanları (m3u değil; extra_sources.py okur).
+FAMELACK_TR = "https://raw.githubusercontent.com/famelack/famelack-data/main/tv/compressed/countries/tr.json"
+
+# Kanalların KENDİ resmî canlı yayın sayfalarından güncel adres çözümü (official.py).
+OFFICIAL_FILE = "official_sources.json"
+OFFICIAL_ENABLED = _env_bool("OFFICIAL_ENABLED", True)
+
+# Kardeş sunucu kuralları: aynı yayının bilinen ikinci adresi. Bir adres listede
+# görülünce kardeşi de aday olarak test edilir (ana adres düşerse yedek hazır olur).
+# (desen, şablon) — şablonda \1, \2 … desenin grupları.
+SIBLING_RULES = [
+    # TRT: medya ↔ live
+    (r"^https://tv-([\w-]+)\.medya\.trt\.com\.tr/(.*)$", r"https://tv-\1.live.trt.com.tr/\2"),
+    (r"^https://tv-([\w-]+)\.live\.trt\.com\.tr/(.*)$", r"https://tv-\1.medya.trt.com.tr/\2"),
+    # Turkuvaz (ATV, A2, A Haber, A Spor, Minika): turknet.ercdn ↔ trkvz-live.ercdn
+    (r"^https://[a-z0-9]+\.turknet\.ercdn\.net/[a-z0-9]+/([\w-]+)/([\w-]+\.m3u8)(\?.*)?$",
+     r"https://trkvz-live.ercdn.net/\1/\2"),
 ]
 
 # Kanal kimliği zenginleştirme (iptv-org veritabanı: alternatif adlar, logo, tvg-id).
@@ -140,7 +173,9 @@ IPTV_ORG_LOGOS    = "https://iptv-org.github.io/api/logos.json"
 ENRICH_ENABLED    = _env_bool("ENRICH_ENABLED", True)
 
 # TV rehberi (XMLTV). tr.m3u başlığına x-tvg-url olarak yazılır. Kendi EPG adresini ekle.
-EPG_URLS = [u for u in os.environ.get("EPG_URLS", "").split(",") if u.strip()]
+EPG_URLS = [u for u in os.environ.get("EPG_URLS", "").split(",") if u.strip()] or [
+    "https://epgshare01.online/epgshare01/epg_ripper_TR1.xml.gz",   # Türkiye XMLTV (açık)
+]
 
 # ================================================================= güvenlik
 # Kullanıcı adı/şifre taşıyan adresler (Xtream panelleri, get.php?username=...) otomatik
@@ -247,3 +282,19 @@ ardahan igdir yalova karabuk kilis osmaniye duzce alanya bodrum marmaris fethiye
 tarsus edessa erciyes""".split()
 # "Kanal 23", "TV 52", "TV41" gibi plaka numaralı kanallar → TR-YEREL
 PLAKA_RE = _re.compile(r"\b(?:kanal|tv)\s?(1\d|[2-7]\d|8[01])\b", _re.I)
+
+# ================================================================= paralı kanallar
+# Paralı platform kanallarının (beIN, S Sport, Tivibu Spor, Exxen, Digiturk…) izinsiz
+# kopyaları listeye ALINMAZ. Kalıplar sadeleştirilmiş (fold), başına/sonuna boşluk
+# eklenmiş kanal adı üzerinde çalışır. Uygulama (tv_rules.dart) aynı listeyi
+# channels.json "rules.paid" alanından okur — ikisi hep aynı kalır.
+PAID_PATTERNS = [
+    r" be ?in ", r" bein", r" s ?sport", r" tivibu ?spor", r" smart ?spor", r" exxen", r" digiturk",
+    r" tabii ?spor", r" eurosport", r" dazn", r" nba ?tv", r" nfl ", r" ufc", r" nhl ", r" espn",
+    r" sky ?(sport|cinema|movies)", r" hbo", r" cinemax", r" movie ?smart", r" moviemax", r" filmbox",
+    r" disney ?(\+|plus|jr|junior|channel)", r" netflix", r" blu ?tv", r" sinema ?tv ", r" dizi ?smart",
+    r" baby ?tv", r" nat ?geo", r" national geographic", r" discovery (channel|science|showcase)",
+    r" animal planet", r" history ", r" cine ?5 ", r" fx ", r" fox (crime|life|sports)",
+    r" bbc (first|earth)", r" viasat",
+]
+PAID_RE = _re.compile("|".join(PAID_PATTERNS), _re.I)

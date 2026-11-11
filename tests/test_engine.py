@@ -252,6 +252,8 @@ def test_end_to_end(server, tmp_path, monkeypatch):
         "#EXTINF:-1,KANALDYEDEK9\n" + server + "/vod/index.m3u8\n"
         "#EXTINF:-1,HALKTVYEDEK2\n" + server + "/html/index.m3u8\n", encoding="utf-8")
     monkeypatch.setattr(C, "CURATED_SOURCES", [])
+    monkeypatch.setattr(C, "FAMELACK_TR", "")
+    monkeypatch.setattr(C, "OFFICIAL_ENABLED", False)
     monkeypatch.setattr(C, "GUARD_MIN_CHANNELS", 2)
     monkeypatch.setattr(guard, "LAST_PUBLISH", str(tmp_path / "state" / "last_publish.json"))
     from engine import build
@@ -306,6 +308,8 @@ def test_guard_protects_memory(server, tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     (tmp_path / "sources.txt").write_text(f"{server}/source.m3u\n", encoding="utf-8")
     monkeypatch.setattr(C, "CURATED_SOURCES", [])
+    monkeypatch.setattr(C, "FAMELACK_TR", "")
+    monkeypatch.setattr(C, "OFFICIAL_ENABLED", False)
     monkeypatch.setattr(C, "GUARD_MIN_CHANNELS", 2)
     monkeypatch.setattr(guard, "LAST_PUBLISH", str(tmp_path / "state" / "last_publish.json"))
     from engine import build
