@@ -29,4 +29,5 @@ https://github.com/alpayaydemir-ui/tv-kanal-listesi/blob/main/turkiye-ucretsiz.m
 https://github.com/YosemiteSam6/turkiye-iptv-m3u-m3u8/blob/main/kanallar.m3u
 https://github.com/YosemiteSam6/turkiye-iptv-m3u-m3u8/blob/main/top50.m3u
 https://github.com/Hamsidenoyunlar/Turkiye-IPTV/blob/main/Turkiye_Duzenli_IPTV_Kasim_2026.m3u
+http://specialboxxserver.com:8080/get.php?username=@01Zero01Adana&password=jYD6uYebDJsM&type=m3u_plus
 
