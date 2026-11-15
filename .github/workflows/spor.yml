@@ -1,0 +1,52 @@
+name: Canlı Maç Listesi
+
+# Yayın akışından canlı maçları bulur → maclar.json (uygulamadaki "⚽ CANLI MAÇ" istasyonu).
+# Hafif iş (≈30 sn): ana listeden (update.yml) ayrı ve daha sık çalışır.
+on:
+  schedule:
+    - cron: '41 */2 * * *'        # 2 saatte bir
+  workflow_dispatch:
+
+concurrency:
+  group: mac-listesi
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  maclar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Kütüphaneler
+        run: pip install -r requirements.txt
+
+      - name: Maç testleri
+        run: python -m pytest -q tests/test_sports_epg.py
+
+      - name: Maçları bul
+        env:
+          EPG_URLS: ${{ vars.EPG_URLS }}
+        run: python sports_update.py
+
+      - name: Kaydet
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          [ -f maclar.json ] || { echo "maclar.json yok"; exit 0; }
+          git add maclar.json
+          if git diff --cached --quiet; then echo "Değişiklik yok"; exit 0; fi
+          git commit -q -m "Maç listesi güncellendi ($(date -u +'%d-%m-%Y %H:%M') UTC)"
+          for i in 1 2 3; do
+            git pull -q --rebase -X theirs && git push -q && exit 0
+            sleep $((i * 5))
+          done
+          echo "Push başarısız"; exit 1
