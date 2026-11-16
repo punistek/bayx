@@ -1,41 +1,31 @@
 {
- "generated_at": "2026-11-16T06:32:10Z",
+ "generated_at": "2026-11-16T22:08:50Z",
  "region": "github",
  "published": true,
  "guard": "kontroller geçti",
  "totals": {
-  "channels": 506,
-  "healthy_channels": 504,
-  "tested_urls": 2973,
+  "channels": 498,
+  "healthy_channels": 497,
+  "tested_urls": 2205,
   "deep_tested": 500,
   "status": {
-   "dead": 1036,
-   "blocked": 684,
-   "ok": 1223,
-   "unstable": 30
+   "dead": 757,
+   "blocked": 218,
+   "ok": 1202,
+   "unstable": 28
   },
-  "candidates": 4086,
-  "quarantined": 1115,
+  "candidates": 3139,
+  "quarantined": 935,
   "site_candidates": 94,
-  "sources_ok": 237,
-  "sources_total": 246
+  "sources_ok": 367,
+  "sources_total": 445
  },
  "armored": {
-  "channels": 2,
+  "channels": 1,
   "healthy": 0,
   "rescued_by_auto": 0
  },
  "channels": [
-  {
-   "id": "x-getphpusernamemuhittinpassword6vfnezi5i6typem3uplus",
-   "name": "GET PHP USERNAME MUHITTIN&PASSWORD 6VFNEZI5I6&TYPE M3U_PLUS&",
-   "group": "TR-DİĞER",
-   "status": "dead",
-   "score": 0,
-   "armored": true,
-   "ok_sources": 0,
-   "sources": 1
-  },
   {
    "id": "x-getphpusernameiospasswordsinetechtypem3uplus",
    "name": "GET PHP USERNAME IOS&PASSWORD SINETECH&TYPE M3U_PLUS",
@@ -51,7 +41,7 @@
    "name": "TRT 1",
    "group": "TR-ULUSAL",
    "status": "ok",
-   "score": 99,
+   "score": 100,
    "armored": false,
    "ok_sources": 6,
    "sources": 6
@@ -120,8 +110,8 @@
    "id": "kanal7",
    "name": "Kanal 7",
    "group": "TR-ULUSAL",
-   "status": "unstable",
-   "score": 74,
+   "status": "ok",
+   "score": 96,
    "armored": false,
    "ok_sources": 2,
    "sources": 2
@@ -191,10 +181,10 @@
    "name": "TRT 2",
    "group": "TR-ULUSAL",
    "status": "ok",
-   "score": 90,
+   "score": 92,
    "armored": false,
-   "ok_sources": 6,
-   "sources": 6
+   "ok_sources": 1,
+   "sources": 1
   },
   {
    "id": "trtturk",
@@ -241,7 +231,7 @@
    "name": "Show Max",
    "group": "TR-ULUSAL",
    "status": "ok",
-   "score": 99,
+   "score": 100,
    "armored": false,
    "ok_sources": 6,
    "sources": 6
@@ -261,7 +251,7 @@
    "name": "Euro Star",
    "group": "TR-ULUSAL",
    "status": "ok",
-   "score": 90,
+   "score": 92,
    "armored": false,
    "ok_sources": 3,
    "sources": 3
@@ -271,7 +261,7 @@
    "name": "tabii TV",
    "group": "TR-ULUSAL",
    "status": "ok",
-   "score": 99,
+   "score": 100,
    "armored": false,
    "ok_sources": 3,
    "sources": 3
@@ -341,7 +331,7 @@
    "name": "Meltem TV",
    "group": "TR-ULUSAL",
    "status": "ok",
-   "score": 94,
+   "score": 95,
    "armored": false,
    "ok_sources": 5,
    "sources": 5
@@ -367,8 +357,38 @@
    "sources": 2
   },
   {
+   "id": "x-101a2",
+   "name": "101 A2",
+   "group": "TR-ULUSAL",
+   "status": "ok",
+   "score": 99,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-104trtturk",
+   "name": "104 TRT TÜRK",
+   "group": "TR-ULUSAL",
+   "status": "ok",
+   "score": 99,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
    "id": "x-105trtavaz",
    "name": "105 TRT AVAZ",
+   "group": "TR-ULUSAL",
+   "status": "ok",
+   "score": 100,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-106trtkurdi",
+   "name": "106 TRT KURDI",
    "group": "TR-ULUSAL",
    "status": "ok",
    "score": 100,
@@ -381,7 +401,7 @@
    "name": "24 SHOW TV",
    "group": "TR-ULUSAL",
    "status": "ok",
-   "score": 97,
+   "score": 95,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -400,8 +420,18 @@
    "id": "x-27atv",
    "name": "27 ATV",
    "group": "TR-ULUSAL",
+   "status": "unstable",
+   "score": 73,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-43kanal1",
+   "name": "43 KANAL 1",
+   "group": "TR-ULUSAL",
    "status": "ok",
-   "score": 89,
+   "score": 86,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -411,7 +441,17 @@
    "name": "ATV ALANYA",
    "group": "TR-ULUSAL",
    "status": "ok",
-   "score": 100,
+   "score": 98,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-atvavrupatr",
+   "name": "ATV AVRUPA TR",
+   "group": "TR-ULUSAL",
+   "status": "ok",
+   "score": 94,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -427,51 +467,11 @@
    "sources": 1
   },
   {
-   "id": "x-atvavrupatr",
-   "name": "ATVAVRUPA TR",
-   "group": "TR-ULUSAL",
-   "status": "ok",
-   "score": 94,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-dw",
-   "name": "DW",
-   "group": "TR-ULUSAL",
-   "status": "ok",
-   "score": 93,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-genctv",
-   "name": "GENÇ TV",
-   "group": "TR-ULUSAL",
-   "status": "ok",
-   "score": 97,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
    "id": "x-halk360",
    "name": "HALK 360",
    "group": "TR-ULUSAL",
    "status": "ok",
    "score": 91,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-kanald2rmn",
-   "name": "KANAL D 2 RMN",
-   "group": "TR-ULUSAL",
-   "status": "ok",
-   "score": 93,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -507,11 +507,21 @@
    "sources": 1
   },
   {
+   "id": "x-tetv",
+   "name": "TETV",
+   "group": "TR-ULUSAL",
+   "status": "ok",
+   "score": 98,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
    "id": "x-trt12k",
    "name": "TRT 1 2K",
    "group": "TR-ULUSAL",
    "status": "ok",
-   "score": 84,
+   "score": 86,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -537,11 +547,11 @@
    "sources": 1
   },
   {
-   "id": "x-trtnostalji",
-   "name": "TRT NOSTALJİ",
+   "id": "x-trtnagme",
+   "name": "TRT NAĞME",
    "group": "TR-ULUSAL",
    "status": "ok",
-   "score": 100,
+   "score": 98,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -607,6 +617,16 @@
    "sources": 1
   },
   {
+   "id": "x-vavo",
+   "name": "VAVO",
+   "group": "TR-ULUSAL",
+   "status": "ok",
+   "score": 98,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
    "id": "trtworld",
    "name": "TRT World",
    "group": "TR-HABER",
@@ -651,7 +671,7 @@
    "name": "GZT TV",
    "group": "TR-HABER",
    "status": "ok",
-   "score": 92,
+   "score": 93,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -763,8 +783,8 @@
    "status": "ok",
    "score": 100,
    "armored": false,
-   "ok_sources": 5,
-   "sources": 5
+   "ok_sources": 4,
+   "sources": 4
   },
   {
    "id": "bloomberght",
@@ -801,7 +821,7 @@
    "name": "Ekol TV",
    "group": "TR-HABER",
    "status": "ok",
-   "score": 92,
+   "score": 93,
    "armored": false,
    "ok_sources": 6,
    "sources": 6
@@ -861,7 +881,7 @@
    "name": "Akit TV",
    "group": "TR-HABER",
    "status": "ok",
-   "score": 92,
+   "score": 93,
    "armored": false,
    "ok_sources": 2,
    "sources": 2
@@ -872,16 +892,6 @@
    "group": "TR-HABER",
    "status": "ok",
    "score": 98,
-   "armored": false,
-   "ok_sources": 4,
-   "sources": 4
-  },
-  {
-   "id": "finansturk",
-   "name": "Finanstürk",
-   "group": "TR-HABER",
-   "status": "ok",
-   "score": 93,
    "armored": false,
    "ok_sources": 4,
    "sources": 4
@@ -907,21 +917,11 @@
    "sources": 4
   },
   {
-   "id": "x-haber61",
-   "name": "- HABER 61",
+   "id": "x-62taselitv",
+   "name": "62 TAŞELI TV",
    "group": "TR-HABER",
    "status": "ok",
-   "score": 98,
-   "armored": false,
-   "ok_sources": 2,
-   "sources": 2
-  },
-  {
-   "id": "x-176",
-   "name": "176",
-   "group": "TR-HABER",
-   "status": "ok",
-   "score": 90,
+   "score": 97,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -941,7 +941,7 @@
    "name": "71 A HABER",
    "group": "TR-HABER",
    "status": "ok",
-   "score": 96,
+   "score": 99,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -957,31 +957,11 @@
    "sources": 1
   },
   {
-   "id": "x-aljazeera",
-   "name": "AL JAZEERA",
-   "group": "TR-HABER",
-   "status": "ok",
-   "score": 100,
-   "armored": false,
-   "ok_sources": 3,
-   "sources": 3
-  },
-  {
    "id": "x-almahriahtv",
    "name": "ALMAHRIAH TV",
    "group": "TR-HABER",
    "status": "ok",
    "score": 95,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-astv",
-   "name": "AS TV",
-   "group": "TR-HABER",
-   "status": "ok",
-   "score": 100,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -1007,6 +987,16 @@
    "sources": 1
   },
   {
+   "id": "x-birlikhabertv",
+   "name": "BİRLİK HABER TV",
+   "group": "TR-HABER",
+   "status": "ok",
+   "score": 92,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
    "id": "x-cbsnews",
    "name": "CBS NEWS",
    "group": "TR-HABER",
@@ -1017,48 +1007,18 @@
    "sources": 1
   },
   {
-   "id": "x-channelnewsasia",
-   "name": "CHANNEL NEWS ASIA",
+   "id": "x-haber61",
+   "name": "HABER 61",
    "group": "TR-HABER",
    "status": "ok",
-   "score": 94,
+   "score": 98,
    "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-cnbcarabia",
-   "name": "CNBC ARABIA",
-   "group": "TR-HABER",
-   "status": "ok",
-   "score": 100,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-cnbcnews",
-   "name": "CNBC NEWS",
-   "group": "TR-HABER",
-   "status": "ok",
-   "score": 85,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-dwtv",
-   "name": "DW TV",
-   "group": "TR-HABER",
-   "status": "ok",
-   "score": 93,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
+   "ok_sources": 2,
+   "sources": 2
   },
   {
    "id": "x-haber61tv",
-   "name": "HABER61 TV",
+   "name": "HABER 61 TV",
    "group": "TR-HABER",
    "status": "ok",
    "score": 98,
@@ -1071,7 +1031,7 @@
    "name": "HABER61TV TR",
    "group": "TR-HABER",
    "status": "ok",
-   "score": 93,
+   "score": 98,
    "armored": false,
    "ok_sources": 2,
    "sources": 2
@@ -1091,7 +1051,7 @@
    "name": "LIFETV TR",
    "group": "TR-HABER",
    "status": "ok",
-   "score": 99,
+   "score": 100,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -1099,26 +1059,6 @@
   {
    "id": "x-mekameleentv",
    "name": "MEKAMELEEN TV",
-   "group": "TR-HABER",
-   "status": "ok",
-   "score": 93,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-skynews",
-   "name": "SKY NEWS",
-   "group": "TR-HABER",
-   "status": "ok",
-   "score": 93,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-skynewsarabia",
-   "name": "SKY NEWS ARABIA",
    "group": "TR-HABER",
    "status": "ok",
    "score": 93,
@@ -1141,17 +1081,7 @@
    "name": "TGRT BELGESEL",
    "group": "TR-HABER",
    "status": "ok",
-   "score": 92,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-uretenturkiye",
-   "name": "ÜRETEN TÜRKIYE",
-   "group": "TR-HABER",
-   "status": "ok",
-   "score": 98,
+   "score": 93,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -1171,7 +1101,7 @@
    "name": "TRT Spor",
    "group": "TR-SPOR",
    "status": "ok",
-   "score": 90,
+   "score": 92,
    "armored": false,
    "ok_sources": 3,
    "sources": 3
@@ -1181,7 +1111,7 @@
    "name": "TRT Spor Yıldız",
    "group": "TR-SPOR",
    "status": "ok",
-   "score": 90,
+   "score": 92,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -1247,24 +1177,14 @@
    "sources": 1
   },
   {
-   "id": "x-pflmma",
-   "name": "PFL MMA",
-   "group": "TR-SPOR",
-   "status": "ok",
-   "score": 93,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
    "id": "x-realmadridtv",
    "name": "REAL MADRID TV",
    "group": "TR-SPOR",
    "status": "ok",
    "score": 93,
    "armored": false,
-   "ok_sources": 2,
-   "sources": 2
+   "ok_sources": 1,
+   "sources": 1
   },
   {
    "id": "x-redbulltv",
@@ -1307,6 +1227,16 @@
    "sources": 1
   },
   {
+   "id": "x-taytv",
+   "name": "TAY TV",
+   "group": "TR-SPOR",
+   "status": "ok",
+   "score": 86,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
    "id": "x-tjk2",
    "name": "TJK 2",
    "group": "TR-SPOR",
@@ -1318,10 +1248,10 @@
   },
   {
    "id": "x-trt3spor",
-   "name": "TRT 3 SPOR",
+   "name": "TRT 3-SPOR",
    "group": "TR-SPOR",
    "status": "ok",
-   "score": 90,
+   "score": 92,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -1337,24 +1267,14 @@
    "sources": 2
   },
   {
-   "id": "x-ziraatturkiyekupasitv",
-   "name": "ZIRAAT TÜRKIYE KUPASI TV",
-   "group": "TR-SPOR",
-   "status": "ok",
-   "score": 97,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
    "id": "trtcocuk",
    "name": "TRT Çocuk",
    "group": "TR-ÇOCUK",
    "status": "ok",
-   "score": 90,
+   "score": 92,
    "armored": false,
-   "ok_sources": 1,
-   "sources": 1
+   "ok_sources": 6,
+   "sources": 6
   },
   {
    "id": "trtdiyanetcocuk",
@@ -1391,7 +1311,7 @@
    "name": "Cartoon Network",
    "group": "TR-ÇOCUK",
    "status": "ok",
-   "score": 90,
+   "score": 92,
    "armored": false,
    "ok_sources": 5,
    "sources": 5
@@ -1401,7 +1321,7 @@
    "name": "Spacetoon",
    "group": "TR-ÇOCUK",
    "status": "ok",
-   "score": 95,
+   "score": 96,
    "armored": false,
    "ok_sources": 2,
    "sources": 2
@@ -1411,10 +1331,10 @@
    "name": "TRT Genç",
    "group": "TR-ÇOCUK",
    "status": "ok",
-   "score": 90,
+   "score": 92,
    "armored": false,
-   "ok_sources": 3,
-   "sources": 3
+   "ok_sources": 1,
+   "sources": 1
   },
   {
    "id": "trteba",
@@ -1429,6 +1349,36 @@
   {
    "id": "x-300vizoncocuk",
    "name": "300 VIZON ÇOCUK",
+   "group": "TR-ÇOCUK",
+   "status": "ok",
+   "score": 94,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-311trtcocuk",
+   "name": "311 TRT ÇOCUK",
+   "group": "TR-ÇOCUK",
+   "status": "ok",
+   "score": 89,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-314stoons",
+   "name": "314 S TOONS",
+   "group": "TR-ÇOCUK",
+   "status": "ok",
+   "score": 91,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-340tracelatina",
+   "name": "340 TRACE LATINA",
    "group": "TR-ÇOCUK",
    "status": "ok",
    "score": 94,
@@ -1491,7 +1441,7 @@
    "name": "TRT EBA ORTAOKUL",
    "group": "TR-ÇOCUK",
    "status": "ok",
-   "score": 98,
+   "score": 97,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -1502,6 +1452,26 @@
    "group": "TR-ÇOCUK",
    "status": "ok",
    "score": 98,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-trtcocukekstra",
+   "name": "TRT ÇOCUK EKSTRA",
+   "group": "TR-ÇOCUK",
+   "status": "ok",
+   "score": 79,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-zaroktvsorani",
+   "name": "ZAROK TV SORANI",
+   "group": "TR-ÇOCUK",
+   "status": "ok",
+   "score": 100,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -1521,7 +1491,7 @@
    "name": "DMAX",
    "group": "TR-BELGESEL",
    "status": "ok",
-   "score": 90,
+   "score": 92,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -1531,7 +1501,7 @@
    "name": "TLC",
    "group": "TR-BELGESEL",
    "status": "ok",
-   "score": 90,
+   "score": 92,
    "armored": false,
    "ok_sources": 2,
    "sources": 2
@@ -1551,7 +1521,97 @@
    "name": "TRT Belgesel",
    "group": "TR-BELGESEL",
    "status": "ok",
-   "score": 90,
+   "score": 92,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-115telenews",
+   "name": "115 TELENEWS",
+   "group": "TR-BELGESEL",
+   "status": "ok",
+   "score": 100,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-203artworldtv",
+   "name": "203 ART WORLD TV",
+   "group": "TR-BELGESEL",
+   "status": "ok",
+   "score": 99,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-208mkturk",
+   "name": "208 MK TÜRK",
+   "group": "TR-BELGESEL",
+   "status": "ok",
+   "score": 95,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-210onmedya",
+   "name": "210 ON MEDYA",
+   "group": "TR-BELGESEL",
+   "status": "ok",
+   "score": 98,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-217ercistv",
+   "name": "217 ERCIŞ TV",
+   "group": "TR-BELGESEL",
+   "status": "ok",
+   "score": 98,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-219egemaxtv",
+   "name": "219 EGEMAX TV",
+   "group": "TR-BELGESEL",
+   "status": "ok",
+   "score": 98,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-220kanalt",
+   "name": "220 KANAL T",
+   "group": "TR-BELGESEL",
+   "status": "ok",
+   "score": 96,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-222merkeztv",
+   "name": "222 MERKEZ TV",
+   "group": "TR-BELGESEL",
+   "status": "ok",
+   "score": 94,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-58worldturk",
+   "name": "58 WORLD TÜRK",
+   "group": "TR-BELGESEL",
+   "status": "ok",
+   "score": 100,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -1572,6 +1632,26 @@
    "group": "TR-BELGESEL",
    "status": "ok",
    "score": 95,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-broadcast5c9e18f9c54e6smil",
+   "name": "BROADCAST 5C9E18F9C54E6 SMIL",
+   "group": "TR-BELGESEL",
+   "status": "ok",
+   "score": 98,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-broadcast5ee244263fd6dsmil",
+   "name": "BROADCAST 5EE244263FD6D SMIL",
+   "group": "TR-BELGESEL",
+   "status": "ok",
+   "score": 99,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -1601,7 +1681,7 @@
    "name": "ED STAFFORD",
    "group": "TR-BELGESEL",
    "status": "ok",
-   "score": 92,
+   "score": 96,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -1621,30 +1701,10 @@
    "name": "FIT YAŞA TV",
    "group": "TR-BELGESEL",
    "status": "ok",
-   "score": 97,
+   "score": 98,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
-  },
-  {
-   "id": "x-gurmetv",
-   "name": "GURME TV",
-   "group": "TR-BELGESEL",
-   "status": "ok",
-   "score": 93,
-   "armored": false,
-   "ok_sources": 2,
-   "sources": 2
-  },
-  {
-   "id": "x-lovenature",
-   "name": "LOVE NATURE",
-   "group": "TR-BELGESEL",
-   "status": "ok",
-   "score": 99,
-   "armored": false,
-   "ok_sources": 2,
-   "sources": 2
   },
   {
    "id": "x-naturaltv",
@@ -1757,16 +1817,6 @@
    "sources": 6
   },
   {
-   "id": "numberoneturk",
-   "name": "Number1 Türk",
-   "group": "TR-MÜZİK",
-   "status": "unstable",
-   "score": 41,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
    "id": "dreamturk",
    "name": "Dream Türk",
    "group": "TR-MÜZİK",
@@ -1775,6 +1825,16 @@
    "armored": false,
    "ok_sources": 6,
    "sources": 6
+  },
+  {
+   "id": "x-109maxtv",
+   "name": "109 MAX TV",
+   "group": "TR-MÜZİK",
+   "status": "ok",
+   "score": 100,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
   },
   {
    "id": "x-321kraltv",
@@ -1787,21 +1847,21 @@
    "sources": 1
   },
   {
-   "id": "x-332knmusic",
-   "name": "332 KN MUSIC",
+   "id": "x-323turkpoptv",
+   "name": "323 TÜRK POP TV",
    "group": "TR-MÜZİK",
    "status": "ok",
-   "score": 100,
+   "score": 98,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
   },
   {
-   "id": "x-4turkpop",
-   "name": "4 TURK POP",
+   "id": "x-332knmusic",
+   "name": "332 KN MUSIC",
    "group": "TR-MÜZİK",
    "status": "ok",
-   "score": 98,
+   "score": 100,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -1827,6 +1887,16 @@
    "sources": 1
   },
   {
+   "id": "x-aviva",
+   "name": "AVIVA",
+   "group": "TR-MÜZİK",
+   "status": "ok",
+   "score": 93,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
    "id": "x-damartv",
    "name": "DAMAR TV",
    "group": "TR-MÜZİK",
@@ -1837,18 +1907,8 @@
    "sources": 2
   },
   {
-   "id": "x-ezgitv",
-   "name": "EZGI TV",
-   "group": "TR-MÜZİK",
-   "status": "ok",
-   "score": 95,
-   "armored": false,
-   "ok_sources": 2,
-   "sources": 2
-  },
-  {
-   "id": "x-ezo",
-   "name": "EZO",
+   "id": "x-dreamturkistanbultr",
+   "name": "DREAM TÜRK ISTANBUL TR",
    "group": "TR-MÜZİK",
    "status": "ok",
    "score": 93,
@@ -1923,8 +1983,8 @@
    "status": "ok",
    "score": 93,
    "armored": false,
-   "ok_sources": 2,
-   "sources": 2
+   "ok_sources": 1,
+   "sources": 1
   },
   {
    "id": "x-nr1ask",
@@ -1961,7 +2021,7 @@
    "name": "NR1 TURK TV",
    "group": "TR-MÜZİK",
    "status": "ok",
-   "score": 87,
+   "score": 88,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -1971,7 +2031,7 @@
    "name": "NR1 TV",
    "group": "TR-MÜZİK",
    "status": "ok",
-   "score": 94,
+   "score": 98,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -2003,18 +2063,8 @@
    "status": "ok",
    "score": 98,
    "armored": false,
-   "ok_sources": 2,
-   "sources": 2
-  },
-  {
-   "id": "x-numberonerap",
-   "name": "NUMBER ONE RAP",
-   "group": "TR-MÜZİK",
-   "status": "ok",
-   "score": 97,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
+   "ok_sources": 3,
+   "sources": 3
   },
   {
    "id": "x-numberoneturkask",
@@ -2027,8 +2077,28 @@
    "sources": 1
   },
   {
+   "id": "x-numberoneturkdamar",
+   "name": "NUMBER ONE TÜRK DAMAR",
+   "group": "TR-MÜZİK",
+   "status": "ok",
+   "score": 98,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
    "id": "x-numberoneturkdance",
    "name": "NUMBER ONE TÜRK DANCE",
+   "group": "TR-MÜZİK",
+   "status": "ok",
+   "score": 98,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-number1world",
+   "name": "NUMBER1 WORLD",
    "group": "TR-MÜZİK",
    "status": "ok",
    "score": 98,
@@ -2058,7 +2128,7 @@
   },
   {
    "id": "x-powerturkakustik",
-   "name": "POWER TÜRK AKUSTIK",
+   "name": "POWERTURK AKUSTIK",
    "group": "TR-MÜZİK",
    "status": "ok",
    "score": 100,
@@ -2107,28 +2177,8 @@
    "sources": 1
   },
   {
-   "id": "x-toppop",
-   "name": "TOPPOP",
-   "group": "TR-MÜZİK",
-   "status": "ok",
-   "score": 93,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
    "id": "x-vevopop",
    "name": "VEVO POP",
-   "group": "TR-MÜZİK",
-   "status": "ok",
-   "score": 93,
-   "armored": false,
-   "ok_sources": 2,
-   "sources": 2
-  },
-  {
-   "id": "x-vivatv",
-   "name": "VIVA TV",
    "group": "TR-MÜZİK",
    "status": "ok",
    "score": 93,
@@ -2167,41 +2217,11 @@
    "sources": 6
   },
   {
-   "id": "x-alistiqama",
-   "name": "AL ISTIQAMA",
-   "group": "TR-DİNİ",
-   "status": "ok",
-   "score": 94,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
    "id": "x-alzahratvturkic",
    "name": "AL-ZAHRA TV TURKIC",
    "group": "TR-DİNİ",
    "status": "ok",
    "score": 98,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-asrisaadettv",
-   "name": "ASR-I SAADET TV",
-   "group": "TR-DİNİ",
-   "status": "ok",
-   "score": 100,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-asriseriftv",
-   "name": "AŞRI ŞERIF TV",
-   "group": "TR-DİNİ",
-   "status": "ok",
-   "score": 100,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -2221,7 +2241,17 @@
    "name": "DOST TV MÜZIK",
    "group": "TR-DİNİ",
    "status": "ok",
-   "score": 92,
+   "score": 93,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-ilahilertv",
+   "name": "ILAHILER-TV",
+   "group": "TR-DİNİ",
+   "status": "ok",
+   "score": 100,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -2237,8 +2267,18 @@
    "sources": 1
   },
   {
+   "id": "x-islamtv",
+   "name": "ISLAM TV",
+   "group": "TR-DİNİ",
+   "status": "ok",
+   "score": 100,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
    "id": "x-kuranikerimdersleri",
-   "name": "KURAN-I KERIM DERSLERI",
+   "name": "KURANI KERIM DERSLERI",
    "group": "TR-DİNİ",
    "status": "ok",
    "score": 100,
@@ -2297,19 +2337,9 @@
    "sources": 1
   },
   {
-   "id": "x-ilahilertv",
-   "name": "İLAHILER TV",
-   "group": "TR-DİNİ",
-   "status": "ok",
-   "score": 100,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-islamtv",
-   "name": "İSLAM TV",
-   "group": "TR-DİNİ",
+   "id": "x-cbaef080a7429e9e2b9f6a5103c3output0",
+   "name": "CBAEF080 A742 9E9E 2B9F6A5103C3 OUTPUT 0",
+   "group": "TR-SİNEMA",
    "status": "ok",
    "score": 100,
    "armored": false,
@@ -2353,8 +2383,8 @@
    "status": "ok",
    "score": 97,
    "armored": false,
-   "ok_sources": 5,
-   "sources": 5
+   "ok_sources": 4,
+   "sources": 4
   },
   {
    "id": "aksutv",
@@ -2387,11 +2417,11 @@
    "sources": 1
   },
   {
-   "id": "x-1mus",
-   "name": "1 MUS",
+   "id": "x-110cemtv",
+   "name": "110 CEM TV",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 94,
+   "score": 98,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -2401,7 +2431,7 @@
    "name": "214 KAY TV",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 98,
+   "score": 95,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -2411,7 +2441,7 @@
    "name": "218 HUNAT TV",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 97,
+   "score": 96,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -2451,7 +2481,7 @@
    "name": "53 KARADENIZ TV",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 98,
+   "score": 100,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -2491,7 +2521,7 @@
    "name": "ANADOLU NET TV",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 99,
+   "score": 100,
    "armored": false,
    "ok_sources": 3,
    "sources": 3
@@ -2502,6 +2532,16 @@
    "group": "TR-YEREL",
    "status": "ok",
    "score": 100,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-arastv",
+   "name": "ARAS TV",
+   "group": "TR-YEREL",
+   "status": "ok",
+   "score": 75,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -2551,7 +2591,7 @@
    "name": "BRT 2",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 97,
+   "score": 98,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -2575,6 +2615,16 @@
    "armored": false,
    "ok_sources": 1,
    "sources": 1
+  },
+  {
+   "id": "x-chunks",
+   "name": "CHUNKS",
+   "group": "TR-YEREL",
+   "status": "ok",
+   "score": 99,
+   "armored": false,
+   "ok_sources": 6,
+   "sources": 6
   },
   {
    "id": "x-denizpostasitv",
@@ -2781,17 +2831,17 @@
    "name": "EZO TV",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 92,
+   "score": 93,
    "armored": false,
-   "ok_sources": 1,
-   "sources": 1
+   "ok_sources": 2,
+   "sources": 2
   },
   {
    "id": "x-frtfethiye",
    "name": "FRT FETHİYE",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 73,
+   "score": 72,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -2817,6 +2867,16 @@
    "sources": 2
   },
   {
+   "id": "x-gencsmstv",
+   "name": "GENÇ SMS TV",
+   "group": "TR-YEREL",
+   "status": "ok",
+   "score": 93,
+   "armored": false,
+   "ok_sources": 3,
+   "sources": 3
+  },
+  {
    "id": "x-grttvgaziantep",
    "name": "GRT TV GAZİANTEP",
    "group": "TR-YEREL",
@@ -2835,6 +2895,16 @@
    "armored": false,
    "ok_sources": 2,
    "sources": 2
+  },
+  {
+   "id": "x-httpsturkmedyatv24tv24m3u8",
+   "name": "HTTPS //TURKMEDYA- /TV24/TV24 M3U8",
+   "group": "TR-YEREL",
+   "status": "ok",
+   "score": 100,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
   },
   {
    "id": "x-hunattv",
@@ -2901,7 +2971,7 @@
    "name": "KANAL 19",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 87,
+   "score": 93,
    "armored": false,
    "ok_sources": 3,
    "sources": 3
@@ -2911,7 +2981,7 @@
    "name": "KANAL 19 ÇORUM",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 87,
+   "score": 93,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3037,6 +3107,16 @@
    "sources": 2
   },
   {
+   "id": "x-kanalada",
+   "name": "KANAL ADA",
+   "group": "TR-YEREL",
+   "status": "ok",
+   "score": 92,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
    "id": "x-kanalfiratelazig",
    "name": "KANAL FIRAT ELAZIĞ",
    "group": "TR-YEREL",
@@ -3061,7 +3141,7 @@
    "name": "KANAL URFA",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 91,
+   "score": 92,
    "armored": false,
    "ok_sources": 4,
    "sources": 4
@@ -3071,7 +3151,7 @@
    "name": "KANAL12 TR",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 96,
+   "score": 95,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3081,7 +3161,7 @@
    "name": "KANAL15 TR",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 96,
+   "score": 95,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3091,7 +3171,7 @@
    "name": "KANAL23 TR",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 96,
+   "score": 95,
    "armored": false,
    "ok_sources": 2,
    "sources": 2
@@ -3101,7 +3181,7 @@
    "name": "KANAL26 TR",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 96,
+   "score": 95,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3131,7 +3211,7 @@
    "name": "KANAL58 TR",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 96,
+   "score": 97,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3168,7 +3248,7 @@
   },
   {
    "id": "x-kaytvkayseri",
-   "name": "KAY TV KAYSERI",
+   "name": "KAY TV KAYSERİ",
    "group": "TR-YEREL",
    "status": "ok",
    "score": 98,
@@ -3201,7 +3281,7 @@
    "name": "KENT TÜRK TV",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 99,
+   "score": 100,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3221,7 +3301,7 @@
    "name": "KIBRIS TV",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 92,
+   "score": 93,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3247,11 +3327,21 @@
    "sources": 1
   },
   {
+   "id": "x-ktvethraa",
+   "name": "KTV ETHRAA",
+   "group": "TR-YEREL",
+   "status": "ok",
+   "score": 93,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
    "id": "x-ktvkonya",
    "name": "KTV KONYA",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 87,
+   "score": 88,
    "armored": false,
    "ok_sources": 2,
    "sources": 2
@@ -3278,7 +3368,7 @@
   },
   {
    "id": "x-mavikaradeniz",
-   "name": "MAVI KARADENIZ",
+   "name": "MAVIKARADENIZ",
    "group": "TR-YEREL",
    "status": "ok",
    "score": 98,
@@ -3301,7 +3391,7 @@
    "name": "MC TV",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 95,
+   "score": 96,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3331,7 +3421,7 @@
    "name": "MERCANTV TR",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 93,
+   "score": 95,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3348,10 +3438,10 @@
   },
   {
    "id": "x-muglaturktv",
-   "name": "MUĞLA TÜRK TV",
+   "name": "MUGLA TÜRK TV",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 68,
+   "score": 69,
    "armored": false,
    "ok_sources": 2,
    "sources": 2
@@ -3371,7 +3461,7 @@
    "name": "ORDU ALTAS TV",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 92,
+   "score": 93,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3421,7 +3511,7 @@
    "name": "RTG INT",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 84,
+   "score": 81,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3471,7 +3561,7 @@
    "name": "SUN RTV MERSİN",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 97,
+   "score": 98,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3498,23 +3588,13 @@
   },
   {
    "id": "x-tv1kayseri",
-   "name": "TV 1 KAYSERI",
+   "name": "TV 1 KAYSERİ",
    "group": "TR-YEREL",
    "status": "ok",
    "score": 72,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
-  },
-  {
-   "id": "x-tv264",
-   "name": "TV 264",
-   "group": "TR-YEREL",
-   "status": "ok",
-   "score": 100,
-   "armored": false,
-   "ok_sources": 3,
-   "sources": 3
   },
   {
    "id": "x-tv264sakarya",
@@ -3531,7 +3611,7 @@
    "name": "TV 3 AFYONKARAHİSAR",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 95,
+   "score": 98,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3558,10 +3638,10 @@
   },
   {
    "id": "x-tvkayseri",
-   "name": "TV KAYSERI",
+   "name": "TV KAYSERİ",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 87,
+   "score": 88,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3597,16 +3677,6 @@
    "sources": 1
   },
   {
-   "id": "x-urfanatiktv",
-   "name": "URFA NATIK TV",
-   "group": "TR-YEREL",
-   "status": "ok",
-   "score": 98,
-   "armored": false,
-   "ok_sources": 5,
-   "sources": 5
-  },
-  {
    "id": "x-van65tv",
    "name": "VAN 65 TV",
    "group": "TR-YEREL",
@@ -3621,27 +3691,17 @@
    "name": "VAN TV",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 92,
+   "score": 93,
    "armored": false,
    "ok_sources": 3,
    "sources": 3
-  },
-  {
-   "id": "x-viyanatv",
-   "name": "VIYANA TV",
-   "group": "TR-YEREL",
-   "status": "ok",
-   "score": 98,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
   },
   {
    "id": "x-yenikocaelitv",
    "name": "YENİ KOCAELİ TV",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 85,
+   "score": 87,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3657,124 +3717,34 @@
    "sources": 1
   },
   {
+   "id": "x-caytvrize",
+   "name": "ÇAY TV RİZE",
+   "group": "TR-YEREL",
+   "status": "ok",
+   "score": 72,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
    "id": "x-izmirtime35tv",
    "name": "İZMİR TIME 35 TV",
    "group": "TR-YEREL",
    "status": "ok",
-   "score": 100,
+   "score": 99,
    "armored": false,
    "ok_sources": 2,
    "sources": 2
   },
   {
-   "id": "x-109maxtv",
-   "name": "109 MAX TV",
+   "id": "x-176",
+   "name": "176",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 100,
+   "score": 93,
    "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-115telenews",
-   "name": "115 TELENEWS",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 100,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-20minutestvidf",
-   "name": "20 MINUTES TV IDF",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 100,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-203artworldtv",
-   "name": "203 ART WORLD TV",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 100,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-208mkturk",
-   "name": "208 MK TÜRK",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 95,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-210onmedya",
-   "name": "210 ON MEDYA",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 98,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-217ercistv",
-   "name": "217 ERCIŞ TV",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 98,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-219egemaxtv",
-   "name": "219 EGEMAX TV",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 98,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-220kanalt",
-   "name": "220 KANAL T",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 95,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-222merkeztv",
-   "name": "222 MERKEZ TV",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 94,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-314stoons",
-   "name": "314 S TOONS",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 91,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
+   "ok_sources": 2,
+   "sources": 2
   },
   {
    "id": "x-4utvtr",
@@ -3797,21 +3767,11 @@
    "sources": 1
   },
   {
-   "id": "x-58worldturk",
-   "name": "58 WORLD TÜRK",
+   "id": "x-570persinaturkiye",
+   "name": "570 PERSINA TÜRKIYE",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 100,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-62taselitv",
-   "name": "62 TAŞELI TV",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 90,
+   "score": 98,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3821,7 +3781,7 @@
    "name": "A VİVA TV",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 93,
+   "score": 92,
    "armored": false,
    "ok_sources": 2,
    "sources": 2
@@ -3837,6 +3797,16 @@
    "sources": 2
   },
   {
+   "id": "x-adsiz",
+   "name": "ADSIZ",
+   "group": "TR-DİĞER",
+   "status": "ok",
+   "score": 100,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
    "id": "x-afroturktv",
    "name": "AFROTURK TV",
    "group": "TR-DİĞER",
@@ -3847,11 +3817,11 @@
    "sources": 1
   },
   {
-   "id": "x-alarabiya",
-   "name": "AL ARABIYA",
+   "id": "x-alistiqama",
+   "name": "AL ISTIQAMA",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 100,
+   "score": 95,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3887,11 +3857,21 @@
    "sources": 4
   },
   {
-   "id": "x-altynasyrtvturkmenistan",
-   "name": "ALTYN ASYR TV TÜRKMENISTAN",
+   "id": "x-althaqalayntv",
+   "name": "ALTHAQALAYN TV",
    "group": "TR-DİĞER",
-   "status": "unstable",
-   "score": 68,
+   "status": "ok",
+   "score": 93,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-arastvtr",
+   "name": "ARASTV TR",
+   "group": "TR-DİĞER",
+   "status": "ok",
+   "score": 75,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3901,7 +3881,7 @@
    "name": "ARB GÜNƏŞ",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 85,
+   "score": 84,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3912,6 +3892,36 @@
    "group": "TR-DİĞER",
    "status": "ok",
    "score": 93,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-astv",
+   "name": "AS TV",
+   "group": "TR-DİĞER",
+   "status": "ok",
+   "score": 100,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-asrisaadettv",
+   "name": "ASR-I-SAADET-TV",
+   "group": "TR-DİĞER",
+   "status": "ok",
+   "score": 100,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-asriseriftv",
+   "name": "ASRI SERIF TV",
+   "group": "TR-DİĞER",
+   "status": "ok",
+   "score": 100,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -3977,26 +3987,6 @@
    "sources": 1
   },
   {
-   "id": "x-broadcast5c9e18f9c54e6smil",
-   "name": "BROADCAST 5C9E18F9C54E6 SMIL",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 98,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-broadcast5ee244263fd6dsmil",
-   "name": "BROADCAST 5EE244263FD6D SMIL",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 99,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
    "id": "x-brtv",
    "name": "BRTV",
    "group": "TR-DİĞER",
@@ -4017,36 +4007,6 @@
    "sources": 3
   },
   {
-   "id": "x-cbaef080a7429e9e2b9f6a5103c3output0",
-   "name": "CBAEF080 A742 9E9E 2B9F6A5103C3 OUTPUT 0",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 100,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-chunks",
-   "name": "CHUNKS",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 100,
-   "armored": false,
-   "ok_sources": 6,
-   "sources": 6
-  },
-  {
-   "id": "x-cnews",
-   "name": "CNEWS",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 100,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
    "id": "x-curacaoboncetv",
    "name": "CURAÇAO BONCE TV",
    "group": "TR-DİĞER",
@@ -4062,6 +4022,16 @@
    "group": "TR-DİĞER",
    "status": "ok",
    "score": 93,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-dss",
+   "name": "D SS",
+   "group": "TR-DİĞER",
+   "status": "ok",
+   "score": 94,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -4087,11 +4057,21 @@
    "sources": 2
   },
   {
+   "id": "x-docubox",
+   "name": "DOCUBOX",
+   "group": "TR-DİĞER",
+   "status": "ok",
+   "score": 40,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
    "id": "x-ekinturktv",
    "name": "EKİNTÜRK TV",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 87,
+   "score": 88,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -4101,7 +4081,7 @@
    "name": "EL PINGÜINO TV",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 96,
+   "score": 97,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -4151,30 +4131,20 @@
    "name": "ESTV TR",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 96,
+   "score": 95,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
   },
   {
-   "id": "x-euronewsen",
-   "name": "EURONEWS EN",
+   "id": "x-ezgitv",
+   "name": "EZGİ TV",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 93,
+   "score": 95,
    "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-fa19",
-   "name": "F A 19",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 100,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
+   "ok_sources": 2,
+   "sources": 2
   },
   {
    "id": "x-filistintv",
@@ -4191,60 +4161,20 @@
    "name": "FORTUNA TV",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 100,
+   "score": 99,
    "armored": false,
    "ok_sources": 4,
    "sources": 4
   },
   {
-   "id": "x-france24ar",
-   "name": "FRANCE 24 AR",
+   "id": "x-genctv",
+   "name": "GENCTV",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 100,
+   "score": 98,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
-  },
-  {
-   "id": "x-france24en",
-   "name": "FRANCE 24 EN",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 100,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-france24fr",
-   "name": "FRANCE 24 FR",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 94,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-ftvturk",
-   "name": "FTV TÜRK",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 94,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-gencsmstv",
-   "name": "GENÇ SMS TV",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 93,
-   "armored": false,
-   "ok_sources": 3,
-   "sources": 3
   },
   {
    "id": "x-goncatv",
@@ -4257,21 +4187,11 @@
    "sources": 1
   },
   {
-   "id": "x-grandcinema",
-   "name": "GRAND CINEMA",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 98,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
    "id": "x-gtvguneydou",
    "name": "GTV GUNEYDO U",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 64,
+   "score": 65,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -4287,14 +4207,14 @@
    "sources": 2
   },
   {
-   "id": "x-guneyazrbaycantv",
-   "name": "GÜNEY AZƏRBAYCAN TV",
+   "id": "x-gurmetv",
+   "name": "GURME TV",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 100,
+   "score": 93,
    "armored": false,
-   "ok_sources": 1,
-   "sources": 1
+   "ok_sources": 2,
+   "sources": 2
   },
   {
    "id": "x-guclutv",
@@ -4323,15 +4243,15 @@
    "status": "ok",
    "score": 97,
    "armored": false,
-   "ok_sources": 2,
-   "sources": 2
+   "ok_sources": 1,
+   "sources": 1
   },
   {
    "id": "x-hocwantv",
    "name": "HOCWAN TV",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 89,
+   "score": 90,
    "armored": false,
    "ok_sources": 2,
    "sources": 2
@@ -4359,16 +4279,6 @@
   {
    "id": "x-ilmtv",
    "name": "ILM-TV",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 100,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-imamhusseintv",
-   "name": "IMAM HUSSEIN TV",
    "group": "TR-DİĞER",
    "status": "ok",
    "score": 100,
@@ -4451,7 +4361,7 @@
    "name": "JORDAN TOURISM",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 100,
+   "score": 93,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -4491,7 +4401,7 @@
    "name": "KANAL AVRUPA",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 98,
+   "score": 100,
    "armored": false,
    "ok_sources": 3,
    "sources": 3
@@ -4511,7 +4421,7 @@
    "name": "KANAL T",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 94,
+   "score": 97,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -4531,7 +4441,7 @@
    "name": "KANAL3 TR",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 98,
+   "score": 97,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -4541,7 +4451,7 @@
    "name": "KANALV TR",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 96,
+   "score": 98,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -4591,7 +4501,7 @@
    "name": "KÖNÜL TV1",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 87,
+   "score": 89,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -4631,7 +4541,7 @@
    "name": "LINE TV",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 98,
+   "score": 97,
    "armored": false,
    "ok_sources": 3,
    "sources": 3
@@ -4647,21 +4557,21 @@
    "sources": 1
   },
   {
-   "id": "x-luystv",
-   "name": "LUYS TV",
+   "id": "x-lovenature",
+   "name": "LOVE NATURE",
    "group": "TR-DİĞER",
    "status": "ok",
    "score": 99,
    "armored": false,
-   "ok_sources": 1,
-   "sources": 1
+   "ok_sources": 2,
+   "sources": 2
   },
   {
    "id": "x-loversenykozvetites",
    "name": "LÓVERSENY KÖZVETÍTÉS",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 88,
+   "score": 90,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -4701,30 +4611,10 @@
    "name": "MTÜRK TV",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 68,
+   "score": 69,
    "armored": false,
    "ok_sources": 2,
    "sources": 2
-  },
-  {
-   "id": "x-mirastvturkmenistan",
-   "name": "MİRAS TV TÜRKMENISTAN",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 93,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-newsmax",
-   "name": "NEWSMAX",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 100,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
   },
   {
    "id": "x-ogordoeomagroaherancaassombrada",
@@ -4741,17 +4631,7 @@
    "name": "ONCUTV TR",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 60,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
-   "id": "x-publicsenat",
-   "name": "PUBLIC-SÉNAT",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 98,
+   "score": 62,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -4771,7 +4651,7 @@
    "name": "RRR",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 96,
+   "score": 97,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -4811,7 +4691,7 @@
    "name": "SIM TV",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 92,
+   "score": 94,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -4847,16 +4727,6 @@
    "sources": 1
   },
   {
-   "id": "x-siriustvtvsham",
-   "name": "SİRİUS TV ᵀᵛˢʰᵃᵐ",
-   "group": "TR-DİĞER",
-   "status": "ok",
-   "score": 95,
-   "armored": false,
-   "ok_sources": 1,
-   "sources": 1
-  },
-  {
    "id": "x-tarihtv",
    "name": "TARIH TV",
    "group": "TR-DİĞER",
@@ -4871,7 +4741,7 @@
    "name": "TELEZÜRI",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 86,
+   "score": 83,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -4887,11 +4757,11 @@
    "sources": 3
   },
   {
-   "id": "x-tetv",
-   "name": "TETV",
+   "id": "x-thikrayat",
+   "name": "THIKRAYAT",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 98,
+   "score": 100,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -4901,10 +4771,10 @@
    "name": "TMB TV",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 98,
+   "score": 99,
    "armored": false,
-   "ok_sources": 2,
-   "sources": 2
+   "ok_sources": 1,
+   "sources": 1
   },
   {
    "id": "x-topbarca",
@@ -4912,6 +4782,16 @@
    "group": "TR-DİĞER",
    "status": "ok",
    "score": 100,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-toppop",
+   "name": "TOPPOP",
+   "group": "TR-DİĞER",
+   "status": "ok",
+   "score": 93,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -4925,6 +4805,16 @@
    "armored": false,
    "ok_sources": 1,
    "sources": 1
+  },
+  {
+   "id": "x-tv264",
+   "name": "TV 264",
+   "group": "TR-DİĞER",
+   "status": "ok",
+   "score": 100,
+   "armored": false,
+   "ok_sources": 3,
+   "sources": 3
   },
   {
    "id": "x-tvden",
@@ -4951,7 +4841,7 @@
    "name": "TV SÜDOSTSCHWEIZ",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 84,
+   "score": 82,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -4991,10 +4881,20 @@
    "name": "UNKNOWN_2657",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 94,
+   "score": 95,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
+  },
+  {
+   "id": "x-urfanatiktv",
+   "name": "URFA NATIK TV",
+   "group": "TR-DİĞER",
+   "status": "ok",
+   "score": 98,
+   "armored": false,
+   "ok_sources": 5,
+   "sources": 5
   },
   {
    "id": "x-vaaztv",
@@ -5002,6 +4902,16 @@
    "group": "TR-DİĞER",
    "status": "ok",
    "score": 100,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-viyanatv",
+   "name": "VİYANA TV",
+   "group": "TR-DİĞER",
+   "status": "ok",
+   "score": 98,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -5057,11 +4967,21 @@
    "sources": 2
   },
   {
-   "id": "x-zaroktvsorani",
-   "name": "ZAROK TV SORANI",
+   "id": "x-ziraatturkiyekupasitv",
+   "name": "ZIRAAT TÜRKIYE KUPASI TV",
    "group": "TR-DİĞER",
    "status": "ok",
-   "score": 100,
+   "score": 98,
+   "armored": false,
+   "ok_sources": 1,
+   "sources": 1
+  },
+  {
+   "id": "x-uretenturkiye",
+   "name": "ÜRETEN TÜRKIYE",
+   "group": "TR-DİĞER",
+   "status": "ok",
+   "score": 98,
    "armored": false,
    "ok_sources": 1,
    "sources": 1
@@ -5088,34 +5008,34 @@
   }
  ],
  "top_sources": {
-  "https://raw.githubusercontent.com/YosemiteSam6/turkiye-iptv-m3u-m3u8/main/kanallar.m3u": 233,
+  "https://raw.githubusercontent.com/YosemiteSam6/turkiye-iptv-m3u-m3u8/main/kanallar.m3u": 234,
   "https://raw.githubusercontent.com/omerdenizhan/IPTV-M3U/main/m3u/turkiye-iptv-org.m3u": 135,
   "https://raw.githubusercontent.com/raalbatros/iptv/HEAD/176.m3u": 109,
-  "https://raw.githubusercontent.com/hussobaba/tbrt_medya/HEAD/Huseyin_cvk_tv.m3u8": 74,
-  "https://raw.githubusercontent.com/MediaVizo/Premium1/HEAD/Giri%C5%9F%20Paketi.m3u8": 48,
-  "https://onureroz.com/indirmeler/turk/index.m3u": 43,
-  "https://raw.githubusercontent.com/Yusufdkci/iptv/main/liste.m3u": 43,
-  "https://raw.githubusercontent.com/BoranT-3000/PlayerM3U8/HEAD/data/master_all_channels.m3u8": 33,
+  "https://raw.githubusercontent.com/hussobaba/tbrt_medya/HEAD/Huseyin_cvk_tv.m3u8": 72,
+  "https://raw.githubusercontent.com/MediaVizo/Premium1/HEAD/Giri%C5%9F%20Paketi.m3u8": 58,
+  "https://onureroz.com/indirmeler/turk/index.m3u": 45,
+  "https://raw.githubusercontent.com/Yusufdkci/iptv/main/liste.m3u": 42,
+  "https://raw.githubusercontent.com/BoranT-3000/PlayerM3U8/HEAD/data/master_all_channels.m3u8": 41,
+  "https://raw.githubusercontent.com/kodlama155-ctrl/tv/main/discovered.m3u": 33,
   "https://raw.githubusercontent.com/kodlama155-ctrl/tv/main/tr.m3u": 32,
-  "https://raw.githubusercontent.com/kodlama155-ctrl/tv/main/discovered.m3u": 31,
+  "https://raw.githubusercontent.com/bugsfreeweb/LiveTVCollector/HEAD/BugsfreeStreams/Output/StreamLinks-TR.m3u": 25,
   "https://raw.githubusercontent.com/ridvanseref37/tivi-rs-playlist/main/Tivi_RS_M3U_Listesi.m3u": 24,
-  "https://raw.githubusercontent.com/bugsfreeweb/LiveTVCollector/HEAD/BugsfreeStreams/Output/StreamLinks-TR.m3u": 24,
   "https://raw.githubusercontent.com/famelack/famelack-data/main/tv/countries/tr.json": 20,
   "https://raw.githubusercontent.com/iptv-turk-tr/iptv/main/list.m3u": 18,
-  "https://raw.githubusercontent.com/allthethingsyouhavechased-ui/tv-liste/main/k.m3u": 16
+  "https://raw.githubusercontent.com/allthethingsyouhavechased-ui/tv-liste/main/k.m3u": 15
  },
  "dead_reasons": {
-  "http 403": 553,
-  "connect": 516,
-  "timeout": 220,
-  "http 404": 160,
-  "http 401": 82,
-  "segment http 401": 33,
-  "http 421": 31,
-  "http 400": 15,
-  "not media": 13,
-  "http 500": 11,
-  "http 502": 10,
-  "segment http 403": 9
+  "radio": 245,
+  "connect": 207,
+  "http 403": 154,
+  "timeout": 112,
+  "http 404": 85,
+  "vod": 32,
+  "http 401": 32,
+  "not media": 29,
+  "segment http 401": 18,
+  "segment http 403": 12,
+  "http 421": 10,
+  "http 503": 7
  }
 }
