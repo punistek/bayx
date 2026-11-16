@@ -127,3 +127,68 @@ def test_build_none_when_all_fail():
             raise IOError("yok")
 
     assert S.build(["x"], Bad(), now=NOW) is None
+
+
+# ---- Tekrar ayıklama: 16.11.2026 pazartesi sabahı gerçek akıştan örnekler ----
+NOW2 = 1794816900  # 16.11.2026 11:15 İstanbul
+
+XML2 = f"""<?xml version="1.0" encoding="UTF-8"?>
+<tv>
+  <channel id="Beinsports.tr"><display-name>Beinsports</display-name></channel>
+  <channel id="Beinsports.2.tr"><display-name>Beinsports 2</display-name></channel>
+  <channel id="Beinsports.3.tr"><display-name>Beinsports 3</display-name></channel>
+  <channel id="A.SPOR.tr"><display-name>A SPOR</display-name></channel>
+  <channel id="TRACE.tr"><display-name>TRACE SPORT STARS HD</display-name></channel>
+  <channel id="TRTSpor.tr"><display-name>TRT Spor</display-name></channel>
+  <!-- dün akşam canlı, bugün tekrar -->
+  <programme start="{_t(22,0,15)}" stop="{_t(23,50,15)}" channel="Beinsports.3.tr">
+    <title>Man Utd - Aston Villa</title></programme>
+  <programme start="{_t(12,10,16)}" stop="{_t(13,57,16)}" channel="Beinsports.3.tr">
+    <title>Man Utd - Aston Villa</title></programme>
+  <!-- tekrar kuşağı: bir maç biter bitmez öteki -->
+  <programme start="{_t(13,57,16)}" stop="{_t(15,40,16)}" channel="Beinsports.3.tr">
+    <title>Everton - Coventry</title></programme>
+  <!-- sabah futbolu -->
+  <programme start="{_t(9,30,16)}" stop="{_t(11,15,16)}" channel="Beinsports.2.tr">
+    <title>Mardin 1969 - Batman P.</title></programme>
+  <programme start="{_t(11,15,16)}" stop="{_t(13,1,16)}" channel="Beinsports.2.tr">
+    <title>Antalyaspor - Bursaspor</title></programme>
+  <!-- aynı maç farklı tire ile iki kez -->
+  <programme start="{_t(9,0,16)}" stop="{_t(10,0,16)}" channel="A.SPOR.tr">
+    <title>İspanya – İngiltere</title></programme>
+  <programme start="{_t(14,0,16)}" stop="{_t(16,0,16)}" channel="A.SPOR.tr">
+    <title>İspanya - İngiltere</title></programme>
+  <!-- XMLTV tekrar işareti -->
+  <programme start="{_t(15,0,16)}" stop="{_t(17,0,16)}" channel="TRTSpor.tr">
+    <title>Konyaspor - Sivasspor</title><previously-shown/></programme>
+  <!-- "Live" adın ortasında: maç değil -->
+  <programme start="{_t(11,0,16)}" stop="{_t(11,30,16)}" channel="TRACE.tr">
+    <title>Only Live Once</title></programme>
+  <!-- bitişi bozuk (0 sn) -->
+  <programme start="{_t(16,0,16)}" stop="{_t(16,0,16)}" channel="TRTSpor.tr">
+    <title>Kasımpaşa - Alanyaspor</title></programme>
+  <!-- GERÇEK canlı: önce maç önü, sonra maç -->
+  <programme start="{_t(18,30,16)}" stop="{_t(19,0,16)}" channel="Beinsports.tr">
+    <title>Maç Önü</title></programme>
+  <programme start="{_t(19,0,16)}" stop="{_t(21,0,16)}" channel="Beinsports.tr">
+    <title>Galatasaray - Amedspor</title></programme>
+  <!-- sabah ama "Canlı" yazıyor: kalır -->
+  <programme start="{_t(10,0,16)}" stop="{_t(12,0,16)}" channel="TRTSpor.tr">
+    <title>Canlı: Japonya - Brezilya</title></programme>
+</tv>
+"""
+
+
+def test_replays_are_dropped():
+    out = S.scan_xmltv(io.BytesIO(XML2.encode("utf-8")), now=NOW2)
+    titles = [x["baslik"] for x in out]
+    assert "Galatasaray - Amedspor" in titles
+    assert "Japonya - Brezilya" in titles
+    assert "Kasımpaşa - Alanyaspor" in titles
+    for bad in ("Man Utd - Aston Villa", "Everton - Coventry", "Mardin 1969 - Batman P.",
+                "Antalyaspor - Bursaspor", "İspanya – İngiltere", "İspanya - İngiltere",
+                "Konyaspor - Sivasspor", "Only Live Once"):
+        assert bad not in titles, bad
+    k = next(x for x in out if x["baslik"] == "Kasımpaşa - Alanyaspor")
+    assert k["bit"] - k["bas"] == 7200
+    assert not any(key.startswith("_") for x in out for key in x)

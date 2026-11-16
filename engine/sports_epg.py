@@ -53,7 +53,9 @@ _HARIC = re.compile(
     r"bolum|sezon\s*\d|episode|haber|bulten|program|tanitim|fragman|klasik|nostalji|"
     r"preview|review|magazine|classic)\b|\((t|r|tekrar)\)")
 # Canlı işareti
-_CANLI = re.compile(r"\b(canli|naklen|live|en\s*direct|en\s*vivo)\b|\(c\)|\(canli\)")
+# İngilizce "live" yalnız başta/sonda ya da parantezde ("Only Live Once" gibi adlar sayılmasın).
+_CANLI = re.compile(r"\b(canli|naklen|en\s*direct|en\s*vivo)\b|^\s*live\b|\blive\s*$|"
+                    r"\(c\)|\(canli\)|\(live\)")
 # Takım – takım ("A - B", "A vs B", "A v B", "A – B")
 _VS = re.compile(r"^\s*(.{2,40}?)\s+(?:-|–|—|vs\.?|v\.?|x)\s+(.{2,40}?)\s*(?:\(.*\))?\s*$", re.I)
 # Spor türleri (kategori ya da başlık/açıklamada)
@@ -125,7 +127,8 @@ def mac_mi(baslik, kanal_adi, kategoriler=(), alt_baslik="", aciklama=""):
             return True, tur or "futbol"
         return False, ""
     # takım – takım yok: canlı + spor (ör. "Formula 1 Brezilya GP Canlı", "NBA Canlı")
-    if canli and (spor_kat or spor_kanal or tur):
+    # Spor TÜRÜ şart: spor kanalı adı tek başına yetmez ("Only Live Once" / TRACE SPORT).
+    if canli and tur:
         return True, tur
     return False, ""
 
@@ -145,12 +148,57 @@ def _temiz_baslik(b):
     return re.sub(r"\s+", " ", b).strip(" -:")
 
 
+TR_SAAT = 3 * 3600      # İstanbul = UTC+3 (yaz saati yok)
+TEKRAR_TOLERANS = 20 * 60   # aynı maç 20 dk'dan daha geç tekrar yayınlanıyorsa: tekrar
+ZINCIR_TOLERANS = 3 * 60    # önceki program bu kadar yakın bitiyorsa "art arda"
+SABAH_SAATLERI = range(2, 12)  # 02:00-11:59 başlayan futbol: neredeyse hep tekrar
+
+
+def _mac_anahtari(baslik):
+    """'İspanya – İngiltere' ile 'İspanya - İngiltere (C)' aynı maç."""
+    t = _fold(_temiz_baslik(baslik))
+    return re.sub(r"[^a-z0-9]", "", t)
+
+
+def _mac_benzeri(baslik):
+    """Başlık bir maç gibi mi (tekrar/özet olsa bile değil)? Art arda yayın tespiti için."""
+    t = _fold(baslik)
+    if not t or _HARIC.search(t):
+        return False
+    temiz = re.sub(r"\((c|canli|live)\)|\b(canli|naklen|live)\b\s*[:\-]?", " ", t).strip(" :-")
+    return bool(_VS.match(temiz))
+
+
+def _tekrar_mi(m, ilk_yayin, kanal_programlari):
+    """Spor kanalları gece-gündüz maç TEKRARI yayınlıyor ve akışta çoğu "(Tekrar)" yazmıyor.
+    Canlı işareti olmayan maç şu durumlarda tekrar sayılır:
+      1) aynı maç akışta daha önce yayınlanmış,
+      2) aynı kanalda bir maç biter bitmez başlıyor (tekrar kuşağı; canlı maçtan önce
+         "maç önü"/stüdyo olur),
+      3) futbol ve sabah 02:00-11:59 arası başlıyor."""
+    if m["_onceden"]:
+        return True
+    if m["canli"]:
+        return False
+    if ilk_yayin.get(m["_anahtar"], m["bas"]) < m["bas"] - TEKRAR_TOLERANS:
+        return True
+    for bas, bit, mac in kanal_programlari.get(m["tvg"], ()):
+        if mac and bas < m["bas"] and abs(bit - m["bas"]) <= ZINCIR_TOLERANS:
+            return True
+    if m["tur"] == "futbol" and ((m["bas"] + TR_SAAT) % 86400) // 3600 in SABAH_SAATLERI:
+        return True
+    return False
+
+
 def scan_xmltv(stream, now=None):
-    """XMLTV akışını okur, maç listesi döner. stream: bytes okuyabilen dosya nesnesi."""
+    """XMLTV akışını okur, (tekrarları ayıklanmış) maç listesi döner.
+    stream: bytes okuyabilen dosya nesnesi."""
     now = now or int(time.time())
     alt, ust = now - GERI_SAAT * 3600, now + ILERI_SAAT * 3600
     kanallar = {}   # id → görünen ad
-    out = []
+    adaylar = []
+    ilk_yayin = {}           # maç anahtarı → akıştaki en erken başlangıç (bütün dosya)
+    kanal_programlari = {}   # kanal id → [(bas, bit, maç_mı)] (pencere + 12 sa geri)
     for _, el in ET.iterparse(stream, events=("end",)):
         tag = el.tag
         if tag == "channel":
@@ -160,12 +208,24 @@ def scan_xmltv(stream, now=None):
         elif tag == "programme":
             try:
                 bas = parse_xmltv_time(el.get("start"))
-                bit = parse_xmltv_time(el.get("stop")) or (bas + 7200 if bas else None)
-                if bas and bit and bit > alt and bas < ust:
-                    cid = el.get("channel", "")
+                bit = parse_xmltv_time(el.get("stop"))
+                if not bas:
+                    continue
+                # Bozuk süreler: bitişi yok/başlangıçtan önce → 2 sa; 4 saatten uzun maç → 2 sa 15 dk
+                if not bit or bit <= bas:
+                    bit = bas + 7200
+                tl = el.find("title")
+                baslik = (tl.text or "").strip() if tl is not None else ""
+                cid = el.get("channel", "")
+                mac = _mac_benzeri(baslik)
+                if mac:
+                    k = _mac_anahtari(baslik)
+                    if k and bas < ilk_yayin.get(k, bas + 1):
+                        ilk_yayin[k] = bas
+                if bit > alt - 12 * 3600 and bas < ust:
+                    kanal_programlari.setdefault(cid, []).append((bas, bit, mac))
+                if bit > alt and bas < ust:
                     kanal = kanallar.get(cid, cid)
-                    tl = el.find("title")
-                    baslik = (tl.text or "").strip() if tl is not None else ""
                     st = el.find("sub-title")
                     alt_b = (st.text or "").strip() if st is not None else ""
                     ds = el.find("desc")
@@ -173,14 +233,28 @@ def scan_xmltv(stream, now=None):
                     kats = [(c.text or "") for c in el.findall("category")]
                     ok, tur = mac_mi(baslik, kanal, kats, alt_b, acik)
                     if ok:
-                        out.append({
+                        if bit - bas > 4 * 3600:
+                            bit = bas + 8100
+                        adaylar.append({
                             "kanal": kanal, "tvg": cid, "baslik": _temiz_baslik(baslik)[:90],
                             "lig": _lig(alt_b, acik), "tur": tur, "bas": bas, "bit": bit,
                             "canli": bool(_CANLI.search(_fold(baslik + " " + alt_b))),
+                            "_anahtar": _mac_anahtari(baslik),
+                            # XMLTV'nin kendi "daha önce yayınlandı" işareti
+                            "_onceden": el.find("previously-shown") is not None,
                         })
             except Exception as e:  # tek bozuk program tüm akışı düşürmesin
                 log.debug("program atlandı: %s", e)
-            el.clear()
+            finally:
+                el.clear()
+    out = []
+    elenen = 0
+    for m in adaylar:
+        if _tekrar_mi(m, ilk_yayin, kanal_programlari):
+            elenen += 1
+            continue
+        out.append({k: v for k, v in m.items() if not k.startswith("_")})
+    log.info("Tekrar olduğu için elenen: %d", elenen)
     return out
 
 
