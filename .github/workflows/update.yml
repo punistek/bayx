@@ -50,6 +50,10 @@ jobs:
       - name: Motor testleri (hata varsa liste güncellenmez)
         run: python -m pytest -q tests
 
+      # Hafıza (state/) ana dalda değil, geçmişi tutulmayan "durum" dalında durur.
+      - name: Motor hafızasını yükle
+        run: bash .github/scripts/durum.sh load
+
       - name: Listeyi güncelle
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -72,7 +76,12 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add tr.m3u channels.json health.json RAPOR.md state/
+          # 1) Hafıza "durum" dalına (üzerine yazılır, geçmiş birikmez).
+          bash .github/scripts/durum.sh save
+          # 2) Ana dal: yalnız yayınlanan dosyalar. state/ ana daldan çıkarılır
+          #    (ilk çalışmada bir kez; sonra zaten takip edilmiyor).
+          git rm -r -q --cached --ignore-unmatch state
+          git add tr.m3u channels.json health.json RAPOR.md .gitignore
           if git diff --cached --quiet; then echo "Değişiklik yok"; exit 0; fi
           git commit -q -m "Canlı liste güncellendi ($(date -u +'%d-%m-%Y %H:%M') UTC)"
           for i in 1 2 3; do

@@ -27,6 +27,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: pip install -r requirements.txt
+      - name: Motor hafızasını yükle
+        run: bash .github/scripts/durum.sh load
       - name: Türkiye'den test
         env:
           PROBE_REGION: tr
@@ -35,7 +37,5 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add state/
-          git diff --cached --quiet && exit 0
-          git commit -q -m "Türkiye doğrulaması ($(date -u +'%d-%m-%Y %H:%M') UTC)"
-          git pull -q --rebase -X theirs && git push -q
+          # Hafıza ana dala değil "durum" dalına yazılır (bkz. .github/scripts/durum.sh).
+          bash .github/scripts/durum.sh save
