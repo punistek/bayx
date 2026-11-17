@@ -1,0 +1,2 @@
+# Motor hafızası ana dalda tutulmaz; "durum" dalında saklanır (bkz. .github/scripts/durum.sh).
+state/
