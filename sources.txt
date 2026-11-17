@@ -11,6 +11,7 @@
 # Buraya eklenen kaynaklar karantinaya alınmaz, her çalışmada taranır.
 # Kullanıcı adı/şifre içeren panel adresleri (get.php?username=..., /user/pass/123)
 # güvenlik nedeniyle herkese açık listeye ALINMAZ.
+https://raw.githubusercontent.com/punistek/pars-web-config1/refs/heads/main/output/vavoo.m3u
 https://github.com/omerdenizhan/IPTV-M3U/blob/main/m3u/turkiye.m3u
 https://github.com/omerdenizhan/IPTV-M3U/blob/main/m3u/turkiye-iptv-org.m3u
 https://github.com/kodlama155-ctrl/tv/blob/main/u.m3u
