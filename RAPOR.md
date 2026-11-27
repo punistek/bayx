@@ -1,6 +1,6 @@
 # PuuStream IPTV Motoru — Güncelleme Raporu
 
-**Tarih:** 27-11-2026 11:34 (TSİ) · **Test bölgesi:** github · **Süre:** 13 dk 37 sn
+**Tarih:** 28-11-2026 00:23 (TSİ) · **Test bölgesi:** github · **Süre:** 11 dk 4 sn
 
 ✅ **Yayınlandı.** Koruma: kontroller geçti
 
@@ -8,19 +8,19 @@
 
 | | |
 |---|---|
-| Sağlam kanal (en az 1 çalışan kaynak) | **502** |
-| Yedek kaynağı olan kanal (≥2 sağlam) | 206 |
-| tr.m3u otomatik bölüm kaydı | 708 |
-| Test edilen adres | 3413 (derin/FFprobe: 500) |
-| Sonuç | ✅ 1278 sağlam · ⚠️ 38 kararsız · 🚫 394 engelli · ❌ 1703 ölü |
-| Karantinada (bu tur atlandı) | 1470 |
-| Kaynak listesi | 362/373 indirildi |
+| Sağlam kanal (en az 1 çalışan kaynak) | **769** |
+| Yedek kaynağı olan kanal (≥2 sağlam) | 290 |
+| tr.m3u otomatik bölüm kaydı | 1059 |
+| Test edilen adres | 8002 (derin/FFprobe: 500) |
+| Sonuç | ✅ 3390 sağlam · ⚠️ 147 kararsız · 🚫 320 engelli · ❌ 4145 ölü |
+| Karantinada (bu tur atlandı) | 2927 |
+| Kaynak listesi | 551/576 indirildi |
 | Site çözücüleri (7 spor kaynağı) | 94 aday (sağlık testine tabi) |
-| Aday (hafızadan geri çağrılan) | 4881 (522) |
-| Resmî site çözücüleri · JSON veritabanı · kardeş sunucu | 10 · 154 · 139 aday |
-| Türk listesi sayılan kaynak | 242 |
+| Aday (hafızadan geri çağrılan) | 16850 (322) |
+| Resmî site çözücüleri · JSON veritabanı · kardeş sunucu | 10 · 152 · 135 aday |
+| Türk listesi sayılan kaynak | 279 |
 | Yabancı olduğu için indirilmeyen dosya | 3686 |
-| Elenen | credential: 62700, paid: 1908, banned: 19414, foreign: 24437 |
+| Elenen | credential: 54159, paid: 5670, banned: 13489, foreign: 85044 |
 
 ## Zırhlı kanallar
 
@@ -38,73 +38,73 @@
 
 ## Gruplara göre sağlam kanallar
 
-- **TR-DİĞER:** 158
-- **TR-YEREL:** 123
-- **TR-ULUSAL:** 56
-- **TR-HABER:** 48
-- **TR-MÜZİK:** 39
-- **TR-DİNİ:** 22
-- **TR-SPOR:** 19
-- **TR-ÇOCUK:** 18
-- **TR-BELGESEL:** 16
+- **TR-DİĞER:** 215
+- **TR-YEREL:** 205
+- **TR-ULUSAL:** 84
+- **TR-HABER:** 71
+- **TR-MÜZİK:** 66
+- **TR-ÇOCUK:** 41
+- **TR-SPOR:** 39
+- **TR-BELGESEL:** 26
+- **TR-DİNİ:** 19
 - **TR-SİNEMA:** 3
 
 ## En iyi 20 kanal (puan)
 
 | Kanal | Puan | Sağlam kaynak | Çözünürlük | Açılış |
 |---|---|---|---|---|
-| Kanal D | 100 | 6 | 1080p | 752 ms |
-| Show TV | 100 | 6 | 1080p | 239 ms |
-| Star TV | 100 | 6 | 1080p | 937 ms |
-| TV8 | 100 | 6 | 1080p | 305 ms |
-| Beyaz TV | 100 | 6 | 1080p | 747 ms |
-| 360 | 100 | 6 | 1080p | 828 ms |
-| Teve2 | 100 | 6 | 1080p | 371 ms |
-| TV4 | 100 | 6 | 1080p | 262 ms |
-| A2 | 100 | 6 | 1080p | 290 ms |
-| TRT Türk | 100 | 6 | 1080p | 468 ms |
-| TRT Avaz | 100 | 6 | 1080p | 634 ms |
-| TRT Kurdî | 100 | 6 | 1080p | 715 ms |
-| TRT Arabi | 100 | 5 | 1080p | 531 ms |
-| Show Max | 100 | 6 | 1080p | 606 ms |
-| Show Türk | 100 | 1 | 1080p | 235 ms |
-| Kanal 7 Avrupa | 100 | 6 | 1080p | 594 ms |
-| tabii TV | 100 | 4 | 1080p | 698 ms |
-| TV 24 | 100 | 6 | 1080p | 177 ms |
-| TYT Türk | 100 | 2 | 1080p | 805 ms |
-| Vav TV | 100 | 3 | 1080p | 598 ms |
+| TRT 1 | 100 | 6 | 1080p | 190 ms |
+| Kanal D | 100 | 6 | 1080p | 422 ms |
+| Show TV | 100 | 6 | 1080p | 523 ms |
+| Star TV | 100 | 6 | 1080p | 569 ms |
+| TV8 | 100 | 6 | 1080p | 205 ms |
+| Kanal 7 | 100 | 6 | 1080p | 757 ms |
+| Beyaz TV | 100 | 6 | 1080p | 458 ms |
+| 360 | 100 | 6 | 1080p | 474 ms |
+| Teve2 | 100 | 6 | 1080p | 756 ms |
+| TV4 | 100 | 6 | 1080p | 467 ms |
+| A2 | 100 | 6 | 1080p | 100 ms |
+| TRT Türk | 100 | 6 | 1080p | 283 ms |
+| TRT Arabi | 100 | 5 | 1080p | 575 ms |
+| Show Max | 100 | 6 | 1080p | 404 ms |
+| Show Türk | 100 | 3 | 1080p | 102 ms |
+| Kanal 7 Avrupa | 100 | 6 | 1080p | 439 ms |
+| tabii TV | 100 | 4 | 1080p | 348 ms |
+| TV 24 | 100 | 6 | 1080p | 577 ms |
+| TYT Türk | 100 | 4 | 1080p | 573 ms |
+| Vav TV | 100 | 3 | 1080p | 488 ms |
 
 ## En verimli kaynaklar
 
-- 241 sağlam · `https://raw.githubusercontent.com/YosemiteSam6/turkiye-iptv-m3u-m3u8/main/kanallar.m3u`
-- 135 sağlam · `https://raw.githubusercontent.com/omerdenizhan/IPTV-M3U/main/m3u/turkiye-iptv-org.m3u`
+- 993 sağlam · `https://raw.githubusercontent.com/nomas67/my-hls-video/HEAD/baharsiafiz8.m3u8`
+- 280 sağlam · `https://raw.githubusercontent.com/YosemiteSam6/turkiye-iptv-m3u-m3u8/main/kanallar.m3u`
+- 137 sağlam · `https://raw.githubusercontent.com/omerdenizhan/IPTV-M3U/main/m3u/turkiye-iptv-org.m3u`
+- 116 sağlam · `https://raw.githubusercontent.com/hussobaba/tbrt_medya/HEAD/Huseyin_cvk_tv.m3u8`
+- 107 sağlam · `https://raw.githubusercontent.com/iptvmate/iptvchannels/HEAD/iptvmate.net_206.m3u8`
 - 98 sağlam · `https://raw.githubusercontent.com/raalbatros/iptv/HEAD/176.m3u`
-- 75 sağlam · `https://onureroz.com/indirmeler/turk/index.m3u`
-- 64 sağlam · `https://raw.githubusercontent.com/hussobaba/tbrt_medya/HEAD/Huseyin_cvk_tv.m3u8`
-- 42 sağlam · `https://raw.githubusercontent.com/Yusufdkci/iptv/main/liste.m3u`
-- 40 sağlam · `https://raw.githubusercontent.com/MediaVizo/Premium1/HEAD/Giri%C5%9F%20Paketi.m3u8`
-- 38 sağlam · `https://raw.githubusercontent.com/kodlama155-ctrl/tv/main/discovered.m3u`
-- 34 sağlam · `https://raw.githubusercontent.com/braveheart1983/ataktv/HEAD/ataktv.m3u`
-- 31 sağlam · `https://raw.githubusercontent.com/kodlama155-ctrl/tv/main/tr.m3u`
-- 27 sağlam · `https://raw.githubusercontent.com/bugsfreeweb/LiveTVCollector/HEAD/BugsfreeStreams/Output/StreamLinks-TR.m3u`
-- 21 sağlam · `https://raw.githubusercontent.com/ridvanseref37/tivi-rs-playlist/main/Tivi_RS_M3U_Listesi.m3u`
-- 20 sağlam · `https://raw.githubusercontent.com/famelack/famelack-data/main/tv/countries/tr.json`
-- 18 sağlam · `https://raw.githubusercontent.com/levi-45/iptvstream/HEAD/TURK_DIGER_IPTV.m3u`
-- 17 sağlam · `https://raw.githubusercontent.com/kodlama155-ctrl/tv/main/turkuvaz_discovered.m3u`
+- 87 sağlam · `https://raw.githubusercontent.com/iptvmate/iptvchannels/HEAD/iptvmate.net_81.m3u8`
+- 86 sağlam · `https://raw.githubusercontent.com/iptvmate/iptvchannels/HEAD/iptvmate.net_303.m3u8`
+- 85 sağlam · `https://raw.githubusercontent.com/iptvmate/iptvchannels/HEAD/iptvmate.net_399.m3u8`
+- 85 sağlam · `https://raw.githubusercontent.com/iptvmate/iptvchannels/HEAD/iptvmate.net_204.m3u8`
+- 85 sağlam · `https://raw.githubusercontent.com/iptvmate/iptvchannels/HEAD/iptvmate.net_304.m3u8`
+- 85 sağlam · `https://raw.githubusercontent.com/iptvmate/iptvchannels/HEAD/iptvmate.net_488.m3u8`
+- 79 sağlam · `https://raw.githubusercontent.com/iptvmate/iptvchannels/HEAD/iptvmate.net_79.m3u8`
+- 74 sağlam · `https://raw.githubusercontent.com/iptvmate/iptvchannels/HEAD/iptvmate.net_144.m3u8`
+- 70 sağlam · `https://raw.githubusercontent.com/iptvmate/iptvchannels/HEAD/iptvmate.net_78.m3u8`
 
 ## Ölü/engelli nedenleri
 
-- radio: 655
-- connect: 485
-- http 403: 328
-- timeout: 235
-- http 404: 160
-- http 401: 40
-- not media: 37
-- segment not media: 24
-- segment http 401: 18
-- http 421: 17
-- http 500: 15
-- http 520: 13
+- connect: 2691
+- http 404: 953
+- http 403: 250
+- radio: 231
+- timeout: 160
+- http 401: 54
+- not media: 25
+- vod: 20
+- segment http 401: 11
+- segment http 404: 10
+- http 500: 10
+- variant http 404: 5
 
 _iptv-org ile zenginleştirilen kanal: 98_
